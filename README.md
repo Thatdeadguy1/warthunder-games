@@ -30,9 +30,9 @@ with command history (↑/↓) and hotkeys (`Ctrl+K` to focus, `Ctrl+L` to clear
 ## Usage
 
 1. Boot Bruce on your ESP32-S3. Either connect Bruce to your Wi-Fi or use its AP.
-2. Serve `index.html` from anywhere — GitHub Pages, `python3 -m http.server`, or open the file directly.
-3. Open the page in **Opera** (or Chrome/Safari on iOS).
-4. Tap **Scan for Bruce** or enter the IP manually. To try the UI first, tap **Launch Demo Mode**.
+2. Serve `bruce-panel.html` from anywhere — `python3 -m http.server`, or open the file directly.
+3. Open the page in **Opera** (or any modern browser).
+4. Click **Scan for Bruce** or enter the IP manually. To try the UI first, click **Launch Demo Mode**.
 
 ## Transport
 
@@ -49,6 +49,6 @@ dispatcher. Command strings match the ones printed under each button.
 ## Notes
 
 - Commands mirror common Bruce CLI verbs but names differ across forks — edit
-  `data-cmd` attributes in `index.html` to match your build.
+  `data-cmd` attributes in `bruce-panel.html` to match your build.
 - If auto-scan can't detect your subnet (private-IP WebRTC blocked in some
   browsers), fall back to the manual IP field.
