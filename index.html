@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bruce Command Panel</title>
+<style>
+  :root {
+    --bg: #0a0f0a;
+    --panel: #111a11;
+    --panel-2: #0d130d;
+    --border: #1f3a1f;
+    --text: #d6ffd6;
+    --muted: #6a8f6a;
+    --accent: #39ff14;
+    --accent-dim: #1f8a12;
+    --danger: #ff4757;
+    --warn: #ffa502;
+    --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", ui-monospace,
+      SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    overflow: hidden;
+  }
+  body {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    height: 100vh;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #0d130d 0%, #0a0f0a 100%);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    text-shadow: 0 0 8px var(--accent);
+    box-shadow: 0 0 12px rgba(57, 255, 20, 0.3) inset;
+  }
+  .title {
+    font-weight: 600;
+    letter-spacing: 2px;
+  }
+  .title small {
+    color: var(--muted);
+    font-weight: 400;
+    letter-spacing: 1px;
+    margin-left: 8px;
+  }
+  .conn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #444;
+    box-shadow: 0 0 6px #444;
+  }
+  .dot.on {
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+  .dot.err {
+    background: var(--danger);
+    box-shadow: 0 0 8px var(--danger);
+  }
+  button {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent-dim);
+    padding: 6px 12px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: background 0.15s, box-shadow 0.15s, color 0.15s;
+  }
+  button:hover:not(:disabled) {
+    background: rgba(57, 255, 20, 0.08);
+    box-shadow: 0 0 6px rgba(57, 255, 20, 0.4);
+  }
+  button:disabled {
+    color: var(--muted);
+    border-color: var(--border);
+    cursor: not-allowed;
+  }
+  button.danger {
+    color: var(--danger);
+    border-color: #6a1a1a;
+  }
+  button.danger:hover:not(:disabled) {
+    background: rgba(255, 71, 87, 0.08);
+    box-shadow: 0 0 6px rgba(255, 71, 87, 0.4);
+  }
+
+  /* Main layout */
+  main {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    overflow: hidden;
+  }
+
+  /* Sidebar */
+  aside {
+    border-right: 1px solid var(--border);
+    background: var(--panel-2);
+    overflow-y: auto;
+  }
+  .group {
+    border-bottom: 1px solid var(--border);
+  }
+  .group-title {
+    padding: 8px 12px;
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: rgba(57, 255, 20, 0.04);
+    border-bottom: 1px solid var(--border);
+  }
+  .cmd-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 8px 12px;
+    background: transparent;
+    color: var(--text);
+    border: none;
+    border-bottom: 1px solid rgba(31, 58, 31, 0.4);
+    text-align: left;
+    letter-spacing: 0.5px;
+  }
+  .cmd-btn:hover:not(:disabled) {
+    background: rgba(57, 255, 20, 0.06);
+    color: var(--accent);
+    box-shadow: none;
+  }
+  .cmd-btn code {
+    color: var(--muted);
+    font-size: 10px;
+  }
+
+  /* Terminal */
+  section.term-wrap {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    overflow: hidden;
+    background: var(--panel);
+  }
+  #term {
+    padding: 12px 16px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
+    font-size: 13px;
+  }
+  #term .out { color: var(--text); }
+  #term .in {
+    color: var(--accent);
+    text-shadow: 0 0 4px rgba(57, 255, 20, 0.5);
+  }
+  #term .sys { color: var(--muted); font-style: italic; }
+  #term .err { color: var(--danger); }
+  #term .warn { color: var(--warn); }
+
+  /* Input */
+  .input-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-top: 1px solid var(--border);
+    background: var(--panel-2);
+  }
+  .prompt {
+    color: var(--accent);
+    font-weight: 700;
+    text-shadow: 0 0 6px var(--accent);
+  }
+  #cmd {
+    background: transparent;
+    color: var(--text);
+    border: none;
+    outline: none;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 4px 0;
+  }
+  #cmd::placeholder { color: var(--muted); }
+
+  /* Footer */
+  footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--panel-2); }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent-dim); }
+
+  /* Modal for unsupported */
+  .modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal.show { display: flex; }
+  .modal-box {
+    background: var(--panel);
+    border: 1px solid var(--danger);
+    padding: 24px;
+    max-width: 480px;
+    box-shadow: 0 0 24px rgba(255, 71, 87, 0.3);
+  }
+  .modal-box h2 {
+    margin: 0 0 12px;
+    color: var(--danger);
+    letter-spacing: 2px;
+  }
+  .modal-box p { margin: 0 0 8px; color: var(--text); }
+  .modal-box code {
+    background: rgba(255, 71, 87, 0.1);
+    padding: 2px 6px;
+    color: var(--warn);
+  }
+
+  /* Baud select */
+  select {
+    background: var(--panel-2);
+    color: var(--accent);
+    border: 1px solid var(--accent-dim);
+    padding: 4px 6px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">B</div>
+    <div class="title">BRUCE<small>// ESP32-S3 COMMAND PANEL</small></div>
+  </div>
+  <div class="conn">
+    <div class="status">
+      <div id="dot" class="dot"></div>
+      <span id="statusText">DISCONNECTED</span>
+    </div>
+    <label class="status">
+      BAUD
+      <select id="baud">
+        <option value="115200" selected>115200</option>
+        <option value="9600">9600</option>
+        <option value="57600">57600</option>
+        <option value="230400">230400</option>
+        <option value="460800">460800</option>
+        <option value="921600">921600</option>
+      </select>
+    </label>
+    <button id="connectBtn">CONNECT</button>
+    <button id="disconnectBtn" class="danger" disabled>DISCONNECT</button>
+  </div>
+</header>
+
+<main>
+  <aside>
+    <div class="group">
+      <div class="group-title">System</div>
+      <button class="cmd-btn" data-cmd="help"><span>Help</span><code>help</code></button>
+      <button class="cmd-btn" data-cmd="info"><span>Device Info</span><code>info</code></button>
+      <button class="cmd-btn" data-cmd="ls"><span>List Files</span><code>ls</code></button>
+      <button class="cmd-btn" data-cmd="clear"><span>Clear Screen</span><code>clear</code></button>
+      <button class="cmd-btn" data-cmd="reboot"><span>Reboot</span><code>reboot</code></button>
+    </div>
+
+    <div class="group">
+      <div class="group-title">WiFi</div>
+      <button class="cmd-btn" data-cmd="wifiscan"><span>Scan Networks</span><code>wifiscan</code></button>
+      <button class="cmd-btn" data-cmd="wifiap"><span>Start AP</span><code>wifiap</code></button>
+      <button class="cmd-btn" data-cmd="wifi connect"><span>Connect</span><code>wifi connect</code></button>
+      <button class="cmd-btn" data-cmd="wifi disconnect"><span>Disconnect</span><code>wifi disconnect</code></button>
+      <button class="cmd-btn" data-cmd="beaconspam"><span>Beacon Spam</span><code>beaconspam</code></button>
+      <button class="cmd-btn" data-cmd="deauth"><span>Deauth</span><code>deauth</code></button>
+      <button class="cmd-btn" data-cmd="evilportal"><span>Evil Portal</span><code>evilportal</code></button>
+    </div>
+
+    <div class="group">
+      <div class="group-title">Bluetooth</div>
+      <button class="cmd-btn" data-cmd="blescan"><span>BLE Scan</span><code>blescan</code></button>
+      <button class="cmd-btn" data-cmd="bleadv"><span>BLE Advertise</span><code>bleadv</code></button>
+      <button class="cmd-btn" data-cmd="blespam"><span>BLE Spam</span><code>blespam</code></button>
+    </div>
+
+    <div class="group">
+      <div class="group-title">RF / IR / NFC</div>
+      <button class="cmd-btn" data-cmd="rfscan"><span>RF Scan</span><code>rfscan</code></button>
+      <button class="cmd-btn" data-cmd="rfsend"><span>RF Send</span><code>rfsend</code></button>
+      <button class="cmd-btn" data-cmd="irsend"><span>IR Send</span><code>irsend</code></button>
+      <button class="cmd-btn" data-cmd="irtvbgone"><span>TV-B-Gone</span><code>irtvbgone</code></button>
+      <button class="cmd-btn" data-cmd="rfid read"><span>RFID Read</span><code>rfid read</code></button>
+      <button class="cmd-btn" data-cmd="nfc read"><span>NFC Read</span><code>nfc read</code></button>
+    </div>
+
+    <div class="group">
+      <div class="group-title">Utilities</div>
+      <button class="cmd-btn" data-cmd="webui"><span>Start Web UI</span><code>webui</code></button>
+      <button class="cmd-btn" data-cmd="battery"><span>Battery</span><code>battery</code></button>
+      <button class="cmd-btn" data-cmd="brightness 100"><span>Brightness Max</span><code>brightness 100</code></button>
+    </div>
+  </aside>
+
+  <section class="term-wrap">
+    <div id="term"></div>
+    <div class="input-row">
+      <span class="prompt">bruce&gt;</span>
+      <input id="cmd" type="text" autocomplete="off" spellcheck="false"
+             placeholder="Type a command and press Enter... (↑/↓ for history)" />
+      <button id="sendBtn" disabled>SEND</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>Web Serial // Opera / Chromium</span>
+  <span id="stats">RX: 0 B &nbsp; TX: 0 B</span>
+</footer>
+
+<div id="modal" class="modal">
+  <div class="modal-box">
+    <h2>WEB SERIAL UNSUPPORTED</h2>
+    <p>Your browser does not expose the <code>navigator.serial</code> API.</p>
+    <p>Open this page in <strong>Opera</strong>, <strong>Chrome</strong>, or <strong>Edge</strong> over
+       <code>https://</code> or <code>http://localhost</code>.</p>
+    <p style="margin-top:12px">In Opera, ensure Web Serial is enabled at
+       <code>opera://flags/#enable-experimental-web-platform-features</code>.</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const els = {
+    term: document.getElementById("term"),
+    cmd: document.getElementById("cmd"),
+    sendBtn: document.getElementById("sendBtn"),
+    connectBtn: document.getElementById("connectBtn"),
+    disconnectBtn: document.getElementById("disconnectBtn"),
+    dot: document.getElementById("dot"),
+    statusText: document.getElementById("statusText"),
+    baud: document.getElementById("baud"),
+    stats: document.getElementById("stats"),
+    modal: document.getElementById("modal"),
+  };
+
+  const state = {
+    port: null,
+    reader: null,
+    writer: null,
+    readLoopAbort: null,
+    connected: false,
+    history: [],
+    histIdx: -1,
+    rxBytes: 0,
+    txBytes: 0,
+    decoder: new TextDecoder(),
+    encoder: new TextEncoder(),
+  };
+
+  // ---------- UI helpers ----------
+  const HIST_KEY = "bruce.cmd.history";
+  try {
+    const saved = JSON.parse(localStorage.getItem(HIST_KEY) || "[]");
+    if (Array.isArray(saved)) state.history = saved.slice(-100);
+  } catch {}
+
+  function print(text, cls = "out") {
+    const span = document.createElement("span");
+    span.className = cls;
+    span.textContent = text;
+    els.term.appendChild(span);
+    els.term.scrollTop = els.term.scrollHeight;
+  }
+  function println(text, cls = "out") {
+    print(text + "\n", cls);
+  }
+
+  function setStatus(kind, label) {
+    els.dot.classList.remove("on", "err");
+    if (kind === "on") els.dot.classList.add("on");
+    if (kind === "err") els.dot.classList.add("err");
+    els.statusText.textContent = label;
+  }
+
+  function updateStats() {
+    els.stats.textContent =
+      `RX: ${state.rxBytes} B  TX: ${state.txBytes} B`;
+  }
+
+  // ---------- Serial support check ----------
+  if (!("serial" in navigator)) {
+    els.modal.classList.add("show");
+    els.connectBtn.disabled = true;
+    println("[!] Web Serial API not available in this browser.", "err");
+    return;
+  }
+
+  println("Bruce Command Panel ready.", "sys");
+  println("Click CONNECT and select your ESP32-S3 serial device.", "sys");
+  println("", "sys");
+
+  // ---------- Connect / disconnect ----------
+  async function connect() {
+    try {
+      const port = await navigator.serial.requestPort();
+      const baud = parseInt(els.baud.value, 10) || 115200;
+      await port.open({
+        baudRate: baud,
+        dataBits: 8,
+        stopBits: 1,
+        parity: "none",
+        flowControl: "none",
+      });
+      state.port = port;
+      state.writer = port.writable.getWriter();
+      state.connected = true;
+      setStatus("on", `CONNECTED @ ${baud}`);
+      els.connectBtn.disabled = true;
+      els.disconnectBtn.disabled = false;
+      els.sendBtn.disabled = false;
+      els.baud.disabled = true;
+      println(`[+] Connected @ ${baud} baud`, "sys");
+      readLoop();
+    } catch (err) {
+      if (err && err.name === "NotFoundError") {
+        println("[!] No device selected.", "warn");
+        return;
+      }
+      setStatus("err", "ERROR");
+      println(`[!] ${err.message || err}`, "err");
+    }
+  }
+
+  async function disconnect() {
+    state.connected = false;
+    els.sendBtn.disabled = true;
+    try {
+      if (state.reader) {
+        try { await state.reader.cancel(); } catch {}
+        try { state.reader.releaseLock(); } catch {}
+        state.reader = null;
+      }
+      if (state.writer) {
+        try { state.writer.releaseLock(); } catch {}
+        state.writer = null;
+      }
+      if (state.port) {
+        try { await state.port.close(); } catch {}
+        state.port = null;
+      }
+    } catch (err) {
+      println(`[!] Disconnect error: ${err.message || err}`, "err");
+    }
+    setStatus("off", "DISCONNECTED");
+    els.connectBtn.disabled = false;
+    els.disconnectBtn.disabled = true;
+    els.baud.disabled = false;
+    println("[-] Disconnected.", "sys");
+  }
+
+  async function readLoop() {
+    if (!state.port || !state.port.readable) return;
+    try {
+      state.reader = state.port.readable.getReader();
+      while (state.connected) {
+        const { value, done } = await state.reader.read();
+        if (done) break;
+        if (value && value.length) {
+          state.rxBytes += value.length;
+          updateStats();
+          const text = state.decoder.decode(value, { stream: true });
+          print(text, "out");
+        }
+      }
+    } catch (err) {
+      if (state.connected) {
+        println(`[!] Read error: ${err.message || err}`, "err");
+      }
+    } finally {
+      if (state.reader) {
+        try { state.reader.releaseLock(); } catch {}
+        state.reader = null;
+      }
+      if (state.connected) {
+        // Unexpected close
+        setStatus("err", "LINK LOST");
+        state.connected = false;
+        els.connectBtn.disabled = false;
+        els.disconnectBtn.disabled = true;
+        els.sendBtn.disabled = true;
+        els.baud.disabled = false;
+      }
+    }
+  }
+
+  // ---------- Send ----------
+  async function sendRaw(text) {
+    if (!state.connected || !state.writer) {
+      println("[!] Not connected.", "warn");
+      return;
+    }
+    const data = state.encoder.encode(text);
+    try {
+      await state.writer.write(data);
+      state.txBytes += data.length;
+      updateStats();
+    } catch (err) {
+      println(`[!] Write error: ${err.message || err}`, "err");
+    }
+  }
+
+  async function sendCommand(cmd) {
+    const c = (cmd || "").trim();
+    if (!c) return;
+
+    // Local commands
+    if (c === "clear") {
+      els.term.innerHTML = "";
+      return;
+    }
+
+    println(`bruce> ${c}`, "in");
+
+    // Push to history
+    if (state.history[state.history.length - 1] !== c) {
+      state.history.push(c);
+      if (state.history.length > 100) state.history.shift();
+      try { localStorage.setItem(HIST_KEY, JSON.stringify(state.history)); } catch {}
+    }
+    state.histIdx = state.history.length;
+
+    await sendRaw(c + "\r\n");
+  }
+
+  // ---------- Events ----------
+  els.connectBtn.addEventListener("click", connect);
+  els.disconnectBtn.addEventListener("click", disconnect);
+  els.sendBtn.addEventListener("click", () => {
+    const v = els.cmd.value;
+    els.cmd.value = "";
+    sendCommand(v);
+  });
+
+  els.cmd.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const v = els.cmd.value;
+      els.cmd.value = "";
+      sendCommand(v);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (state.history.length === 0) return;
+      state.histIdx = Math.max(0, state.histIdx - 1);
+      els.cmd.value = state.history[state.histIdx] || "";
+      requestAnimationFrame(() =>
+        els.cmd.setSelectionRange(els.cmd.value.length, els.cmd.value.length)
+      );
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (state.history.length === 0) return;
+      state.histIdx = Math.min(state.history.length, state.histIdx + 1);
+      els.cmd.value =
+        state.histIdx >= state.history.length ? "" : state.history[state.histIdx];
+    } else if (e.key === "l" && e.ctrlKey) {
+      e.preventDefault();
+      els.term.innerHTML = "";
+    }
+  });
+
+  document.querySelectorAll(".cmd-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const cmd = btn.getAttribute("data-cmd");
+      if (cmd === "clear") {
+        els.term.innerHTML = "";
+        return;
+      }
+      sendCommand(cmd);
+      els.cmd.focus();
+    });
+  });
+
+  navigator.serial.addEventListener?.("disconnect", (ev) => {
+    if (state.port && ev.target === state.port) {
+      println("[!] Device physically disconnected.", "warn");
+      disconnect();
+    }
+  });
+
+  window.addEventListener("beforeunload", () => {
+    if (state.connected) disconnect();
+  });
+
+  els.cmd.focus();
+})();
+</script>
+</body>
+</html>
