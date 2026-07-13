@@ -1,41 +1,50 @@
 # Bruce Command Panel
 
-A single-file browser command panel for controlling [Bruce](https://github.com/pr3y/Bruce)
-firmware on an ESP32-S3 over USB, from **Opera** (or any Chromium-based browser).
+A mobile-first web command panel for [Bruce](https://github.com/pr3y/Bruce)
+firmware running on an ESP32-S3. Opens in **Opera** (or any modern browser),
+scans your local network for the Bruce device, and drives it over HTTP + WebSocket.
 
-Uses the [Web Serial API](https://developer.mozilla.org/docs/Web/API/Web_Serial_API)
-to talk directly to Bruce's serial CLI — no drivers, no companion app.
+Dark palette: **black background, gray panels, red danger, green primary.**
 
 ## Features
 
-- **One-click quick commands** grouped by category (System, WiFi, Bluetooth, RF/IR/NFC, Utilities)
-- **Live terminal** with color-coded input/output
-- **Command history** (↑/↓) persisted in `localStorage`
-- **Selectable baud rate** (defaults to 115200)
-- **RX/TX byte counter** and connection status indicator
-- **Ctrl+L** to clear the terminal
-- Auto-detects Web Serial support and shows guidance if disabled
+- **Auto-scan** the local subnet (WebRTC-derived) for a Bruce device on ports 80 / 8080 / 8888
+- **Manual IP entry** (defaults to `192.168.4.1` for Bruce's AP mode)
+- **Remembers previously-found devices** in `localStorage`
+- **Demo Mode** — full UI with simulated Bruce responses, no hardware required
+- Six tabs of one-tap commands:
+  - **📡 Wi-Fi** — scan, sniff, deauth, beacon spam, evil portal
+  - **🔵 Bluetooth** — BLE scan, AirTag/Flipper finder, SourApple / Samsung / Microsoft / Google spam, BLE HID
+  - **📻 SubGHz** — RF scan, record, replay, jam (CC1101)
+  - **🔴 Infrared** — TV-B-Gone, record, send saved files
+  - **💳 RFID/NFC** — read/write/emulate for 125 kHz and 13.56 MHz
+  - **⚙️ System** — info, battery, brightness, files, Wi-Fi connect, reboot, raw CLI
+- **Live serial log** with color-coded input/output/errors
+- **Parsed AP list** with RSSI bars, encryption tags, per-row deauth button
+- **Toast notifications** and iOS safe-area handling
 
 ## Usage
 
-1. Flash Bruce onto your ESP32-S3 and connect it over USB.
-2. Open `index.html` in Opera / Chrome / Edge.
-   - Serve it locally (`python3 -m http.server`) or open from `file://` — both work.
-3. Click **CONNECT** and pick your ESP32-S3 serial device.
-4. Use the sidebar buttons or type commands directly.
+1. Boot Bruce on your ESP32-S3. Either connect Bruce to your Wi-Fi or use its AP.
+2. Serve `index.html` from anywhere — GitHub Pages, `python3 -m http.server`, or open the file directly.
+3. Open the page in **Opera** (or Chrome/Safari on iOS).
+4. Tap **Scan for Bruce** or enter the IP manually. To try the UI first, tap **Launch Demo Mode**.
 
-### Enabling Web Serial in Opera
+## Transport
 
-If the panel says "Web Serial unsupported", go to:
+The panel expects Bruce to respond on one of:
 
-```
-opera://flags/#enable-experimental-web-platform-features
-```
+- `ws://<ip>:<port>/ws` — WebSocket, preferred (bidirectional streaming)
+- `POST http://<ip>:<port>/cmd` with `Content-Type: text/plain` — HTTP fallback
 
-Set it to **Enabled** and restart Opera.
+Bruce's stock web interface serves a file browser, not a `/cmd` endpoint —
+you'll need to add a small handler to `WebInterface.cpp` (or the equivalent
+in your Bruce fork) that forwards the POST body to the serial command
+dispatcher. Command strings match the ones printed under each button.
 
 ## Notes
 
-The sidebar commands are a starting set of common Bruce CLI verbs. Actual
-command names / arguments may differ across Bruce versions — edit the
-`data-cmd` attributes in `index.html` to match your firmware build.
+- Commands mirror common Bruce CLI verbs but names differ across forks — edit
+  `data-cmd` attributes in `index.html` to match your build.
+- If auto-scan can't detect your subnet (private-IP WebRTC blocked in some
+  browsers), fall back to the manual IP field.
