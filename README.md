@@ -1,10 +1,13 @@
 # Bruce Command Panel
 
-A mobile-first web command panel for [Bruce](https://github.com/pr3y/Bruce)
+A desktop web command panel for [Bruce](https://github.com/pr3y/Bruce)
 firmware running on an ESP32-S3. Opens in **Opera** (or any modern browser),
 scans your local network for the Bruce device, and drives it over HTTP + WebSocket.
 
 Dark palette: **black background, gray panels, red danger, green primary.**
+
+Sidebar nav for modules, multi-column card grid, persistent bottom log and CLI
+with command history (↑/↓) and hotkeys (`Ctrl+K` to focus, `Ctrl+L` to clear).
 
 ## Features
 
@@ -12,7 +15,8 @@ Dark palette: **black background, gray panels, red danger, green primary.**
 - **Manual IP entry** (defaults to `192.168.4.1` for Bruce's AP mode)
 - **Remembers previously-found devices** in `localStorage`
 - **Demo Mode** — full UI with simulated Bruce responses, no hardware required
-- Six tabs of one-tap commands:
+- **Persistent bottom log** (collapsible) + always-visible CLI with ↑/↓ history
+- Six sidebar modules:
   - **📡 Wi-Fi** — scan, sniff, deauth, beacon spam, evil portal
   - **🔵 Bluetooth** — BLE scan, AirTag/Flipper finder, SourApple / Samsung / Microsoft / Google spam, BLE HID
   - **📻 SubGHz** — RF scan, record, replay, jam (CC1101)

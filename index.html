@@ -2,260 +2,296 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Bruce">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bruce Command Panel</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#0a0a0a;--panel:#141414;--panel2:#1c1c1c;--border:#2a2a2a;
+  --bg:#0a0a0a;--panel:#141414;--panel2:#1c1c1c;--panel3:#222;--border:#2a2a2a;
   --accent:#00ff41;--accent2:#b8b8b8;--accent3:#ff2d2d;--accent4:#ff8888;
   --text:#e0e0e0;--dim:#555;--mid:#888;
-  --mono:'Share Tech Mono',monospace;--sans:'Outfit',sans-serif;--r:10px;
-  --st:env(safe-area-inset-top,44px);--sb:env(safe-area-inset-bottom,34px);
+  --mono:'Share Tech Mono',monospace;--sans:'Outfit',sans-serif;--r:8px;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);overflow:hidden}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);overflow:hidden;font-size:14px}
 body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.06) 3px,rgba(0,0,0,.06) 4px);pointer-events:none;z-index:1000}
-#app{display:flex;flex-direction:column;height:100dvh}
-.safe-top{height:var(--st);background:var(--bg);flex-shrink:0}
-.navbar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(10,10,10,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);flex-shrink:0;gap:10px}
-.logo{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
-.logo-title{font-family:var(--mono);font-size:15px;color:var(--accent);letter-spacing:2px;text-shadow:0 0 16px rgba(0,255,65,.4)}
-.logo-sub{font-size:9px;color:var(--dim);letter-spacing:2px;margin-top:1px}
-.conn-area{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.status-pill{display:flex;align-items:center;gap:6px;padding:5px 10px;background:var(--panel2);border:1px solid var(--border);border-radius:20px;font-family:var(--mono);font-size:10px;color:var(--dim);white-space:nowrap}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--dim);flex-shrink:0}
-.dot.on{background:var(--accent);box-shadow:0 0 7px var(--accent);animation:blink 2s infinite}
-.dot.off{background:var(--accent3);box-shadow:0 0 5px var(--accent3)}
-.dot.scan{background:var(--accent2);box-shadow:0 0 5px var(--accent2);animation:blink .5s infinite}
+#app{display:flex;flex-direction:column;height:100vh}
+
+/* ─────────────────────────── HEADER ─────────────────────────── */
+.navbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:linear-gradient(180deg,#141414 0%,#0a0a0a 100%);border-bottom:1px solid var(--border);flex-shrink:0;gap:14px}
+.logo{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.logo-title{font-family:var(--mono);font-size:17px;color:var(--accent);letter-spacing:3px;text-shadow:0 0 16px rgba(0,255,65,.4)}
+.logo-sub{font-size:9px;color:var(--dim);letter-spacing:2px;margin-top:2px;text-transform:uppercase}
+.conn-area{display:flex;align-items:center;gap:10px}
+.status-pill{display:flex;align-items:center;gap:7px;padding:6px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:20px;font-family:var(--mono);font-size:11px;color:var(--dim);white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--dim);flex-shrink:0}
+.dot.on{background:var(--accent);box-shadow:0 0 8px var(--accent);animation:blink 2s infinite}
+.dot.off{background:var(--accent3);box-shadow:0 0 6px var(--accent3)}
+.dot.scan{background:var(--accent2);box-shadow:0 0 6px var(--accent2);animation:blink .5s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.conn-btn{font-family:var(--mono);font-size:11px;padding:7px 14px;background:transparent;border:1px solid var(--accent);color:var(--accent);cursor:pointer;letter-spacing:1px;border-radius:var(--r);transition:all .2s;white-space:nowrap}
+.conn-btn{font-family:var(--mono);font-size:12px;padding:8px 18px;background:transparent;border:1px solid var(--accent);color:var(--accent);cursor:pointer;letter-spacing:2px;border-radius:var(--r);transition:all .15s;white-space:nowrap}
+.conn-btn:hover{background:rgba(0,255,65,.08);box-shadow:0 0 12px rgba(0,255,65,.35)}
 .conn-btn.live{background:var(--accent);color:var(--bg);font-weight:700}
 .conn-btn.demo-live{background:var(--accent2);border-color:var(--accent2);color:var(--bg);font-weight:700}
-.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
-.scroll::-webkit-scrollbar{display:none}
-.page{display:none}.page.on{display:block}
-.sp{height:24px}
-.conn-page{padding:16px}
-.hero{text-align:center;padding:24px 16px 20px}
-.hero-icon{font-size:48px;margin-bottom:10px;color:var(--accent3);text-shadow:0 0 24px rgba(255,45,45,.5)}
-.hero-title{font-family:var(--mono);font-size:20px;color:var(--accent);letter-spacing:4px;text-shadow:0 0 20px rgba(0,255,65,.4)}
-.hero-sub{font-size:12px;color:var(--dim);margin-top:6px;line-height:1.5}
-.conn-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px}
-.conn-card-title{font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
-.conn-card-sub{font-size:11px;color:var(--dim);margin-bottom:14px;line-height:1.6}
-.scan-progress{display:none;margin-top:12px}
+
+/* ─────────────────────────── PAGE ROOT ─────────────────────────── */
+.page{display:none;flex:1;overflow:hidden}
+.page.on{display:flex}
+
+/* ─────────────────────────── CONNECT PAGE ─────────────────────────── */
+#pg-connect{overflow-y:auto;flex-direction:column;padding:40px 20px}
+.conn-inner{max-width:900px;width:100%;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.hero{grid-column:1/-1;text-align:center;padding:20px 16px 30px}
+.hero-icon{font-size:64px;margin-bottom:12px;color:var(--accent3);text-shadow:0 0 32px rgba(255,45,45,.5)}
+.hero-title{font-family:var(--mono);font-size:32px;color:var(--accent);letter-spacing:8px;text-shadow:0 0 24px rgba(0,255,65,.4)}
+.hero-sub{font-size:13px;color:var(--dim);margin-top:10px;line-height:1.6;max-width:520px;margin-left:auto;margin-right:auto}
+.conn-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:20px}
+.conn-card.full{grid-column:1/-1}
+.conn-card-title{font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.conn-card-sub{font-size:12px;color:var(--dim);margin-bottom:16px;line-height:1.6}
+.scan-progress{display:none;margin-top:14px}
 .scan-bar-wrap{height:4px;background:var(--panel2);border-radius:2px;overflow:hidden;margin-bottom:8px}
 .scan-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:2px;width:0%;transition:width .3s}
-.scan-status{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:1px}
-.scan-results-list{margin-top:10px;display:none}
-.scan-item{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer}
-.scan-item:active{border-color:var(--accent);background:rgba(0,255,65,.05)}
-.scan-item-host{font-size:13px;font-weight:600;color:var(--accent)}
+.scan-status{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:1px}
+.scan-results-list{margin-top:12px;display:none;max-height:220px;overflow-y:auto}
+.scan-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--panel2);border:1px solid var(--border);border-radius:6px;margin-bottom:8px;cursor:pointer;transition:all .15s}
+.scan-item:hover{border-color:var(--accent);background:rgba(0,255,65,.06)}
+.scan-item-host{font-size:14px;font-weight:600;color:var(--accent)}
 .scan-item-ip{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:2px}
-.scan-item-badge{font-size:10px;padding:3px 9px;border-radius:5px;background:rgba(0,255,65,.1);color:var(--accent);border:1px solid rgba(0,255,65,.25);white-space:nowrap}
-.big-btn{width:100%;padding:14px 16px;border-radius:var(--r);font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid}
-.big-btn:active{opacity:.75;transform:scale(.98)}
+.scan-item-badge{font-size:10px;padding:4px 10px;border-radius:5px;background:rgba(0,255,65,.1);color:var(--accent);border:1px solid rgba(0,255,65,.25);white-space:nowrap}
+.big-btn{width:100%;padding:13px 16px;border-radius:var(--r);font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid;letter-spacing:1px}
+.big-btn:hover{transform:translateY(-1px)}
 .big-btn-g{background:rgba(0,255,65,.08);border-color:rgba(0,255,65,.35);color:var(--accent)}
+.big-btn-g:hover{background:rgba(0,255,65,.14);box-shadow:0 0 12px rgba(0,255,65,.25)}
 .big-btn-a{background:rgba(184,184,184,.08);border-color:rgba(184,184,184,.35);color:var(--accent2)}
-.big-btn-r{background:rgba(255,45,45,.08);border-color:rgba(255,45,45,.35);color:var(--accent3)}
-.big-btn+.big-btn{margin-top:10px}
+.big-btn-a:hover{background:rgba(184,184,184,.14)}
 .manual-row{display:flex;gap:8px;margin-top:12px}
-input,select{font-family:var(--sans);font-size:14px;padding:11px 13px;background:var(--panel2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);outline:none;transition:border-color .15s;width:100%;-webkit-appearance:none}
+input,select{font-family:var(--sans);font-size:13px;padding:11px 13px;background:var(--panel2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);outline:none;transition:border-color .15s;width:100%}
 input::placeholder{color:var(--dim)}
-input:focus{border-color:rgba(0,255,65,.4)}
-select{flex-shrink:0;width:auto;min-width:70px}
-.ibtn{font-family:var(--sans);font-size:13px;font-weight:600;padding:11px 16px;border-radius:var(--r);cursor:pointer;white-space:nowrap;transition:all .15s;border:1px solid;flex-shrink:0}
-.ibtn:active{opacity:.7}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,255,65,.08)}
+.ibtn{font-family:var(--sans);font-size:12px;font-weight:600;padding:11px 18px;border-radius:var(--r);cursor:pointer;white-space:nowrap;transition:all .15s;border:1px solid;flex-shrink:0;letter-spacing:1px}
 .ibtn-g{background:rgba(0,255,65,.1);border-color:rgba(0,255,65,.4);color:var(--accent)}
+.ibtn-g:hover{background:rgba(0,255,65,.18)}
 .ibtn-r{background:rgba(255,45,45,.1);border-color:rgba(255,45,45,.4);color:var(--accent3)}
+.ibtn-r:hover{background:rgba(255,45,45,.18)}
 .ibtn-b{background:rgba(184,184,184,.1);border-color:rgba(184,184,184,.4);color:var(--accent2)}
-.divider{display:flex;align-items:center;gap:10px;padding:12px 0;color:var(--dim);font-size:11px}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
-.notice{background:rgba(255,45,45,.05);border:1px solid rgba(255,45,45,.2);border-radius:var(--r);padding:12px 14px;font-size:12px;color:var(--accent4);display:flex;align-items:flex-start;gap:10px;line-height:1.5;margin-bottom:12px}
+.ibtn-b:hover{background:rgba(184,184,184,.18)}
+
+/* ─────────────────────────── MAIN PAGE ─────────────────────────── */
+#pg-main{flex-direction:row}
+.sidebar{width:200px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.side-title{padding:14px 18px 10px;font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:2px}
+.side-nav{display:flex;flex-direction:column;flex:1}
+.side-btn{display:flex;align-items:center;gap:12px;padding:12px 18px;font-family:var(--sans);font-size:13px;color:var(--mid);background:transparent;border:none;border-left:3px solid transparent;cursor:pointer;text-align:left;transition:all .15s;letter-spacing:.5px}
+.side-btn:hover{background:var(--panel2);color:var(--text)}
+.side-btn.on{color:var(--accent);background:rgba(0,255,65,.06);border-left-color:var(--accent)}
+.side-btn .si{font-size:16px;width:20px;text-align:center}
+.side-foot{padding:12px 18px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:1px}
+
+.workspace{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.tab-content{display:none;flex:1;overflow-y:auto;padding:20px}
+.tab-content.on{display:block}
+.tab-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.tab-head h2{font-family:var(--mono);font-size:18px;letter-spacing:3px;color:var(--accent);font-weight:400}
+.tab-head p{font-size:12px;color:var(--dim);letter-spacing:1px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-bottom:16px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:18px;transition:border-color .15s}
+.card:hover{border-color:rgba(0,255,65,.2)}
+.card-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.card-icon{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.ci-g{background:rgba(0,255,65,.1)}.ci-b{background:rgba(184,184,184,.08)}.ci-r{background:rgba(255,45,45,.1)}.ci-x{background:rgba(255,255,255,.04)}
+.card-title{font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.card-desc{font-size:11px;color:var(--dim);margin-top:2px}
+.ct-g{color:var(--accent)}.ct-b{color:var(--accent2)}.ct-r{color:var(--accent3)}.ct-x{color:var(--mid)}
+.bg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bg.c1{grid-template-columns:1fr}
+.btn{font-family:var(--sans);font-size:13px;font-weight:600;padding:11px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;text-align:left;transition:all .15s;letter-spacing:.3px}
+.btn:hover{background:var(--panel3);border-color:var(--mid)}
+.btn .bl{display:block;font-size:13px;font-weight:600}
+.btn .bs{display:block;font-size:10px;color:var(--dim);margin-top:3px;font-weight:400;font-family:var(--mono)}
+.btn.stop{background:rgba(255,45,45,.06);border-color:rgba(255,45,45,.25);color:var(--accent3)}
+.btn.stop:hover{background:rgba(255,45,45,.12);box-shadow:0 0 10px rgba(255,45,45,.2)}
+.btn.go{background:rgba(0,255,65,.06);border-color:rgba(0,255,65,.25);color:var(--accent)}
+.btn.go:hover{background:rgba(0,255,65,.12);box-shadow:0 0 10px rgba(0,255,65,.2)}
+.field-label{font-size:10px;font-weight:600;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;margin-top:14px}
+.irow{display:flex;gap:7px}
+.notice{background:rgba(255,45,45,.05);border:1px solid rgba(255,45,45,.2);border-radius:var(--r);padding:12px 14px;font-size:12px;color:var(--accent4);display:flex;align-items:flex-start;gap:10px;line-height:1.5;margin-bottom:16px}
 .notice .ni{font-size:16px;flex-shrink:0;margin-top:1px}
-.log-wrap{margin:12px 14px 0;background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--r);overflow:hidden}
-.log-head{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:1px solid var(--border)}
-.log-head span{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--dim)}
-.log-clear{font-family:var(--mono);font-size:10px;color:var(--dim);background:none;border:none;cursor:pointer}
-.log-body{padding:8px 12px;font-family:var(--mono);font-size:11px;height:68px;overflow-y:auto;line-height:1.75}
-.log-body::-webkit-scrollbar{width:3px}
-.log-body::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
+.results-wrap{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);margin-top:16px;overflow:hidden;display:none}
+.results-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--panel2)}
+.rh-title{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mid)}
+.rh-count{font-family:var(--mono);font-size:12px;color:var(--accent)}
+.ap-row{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(42,42,42,.5);gap:12px;transition:background .15s}
+.ap-row:hover{background:var(--panel2)}
+.ap-row:last-child{border-bottom:none}
+.ap-info{flex:1;min-width:0}
+.ap-ssid{font-size:14px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ap-bssid{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:2px}
+.rssi-wrap{display:flex;align-items:center;gap:8px;margin-top:4px}
+.rssi-bar{width:60px;height:4px;background:var(--border);border-radius:2px}
+.rssi-fill{height:100%;border-radius:2px;background:var(--accent)}
+.rssi-val{font-size:11px;color:var(--dim);font-family:var(--mono)}
+.enc-tag{display:inline-block;padding:3px 8px;border-radius:4px;font-size:10px;letter-spacing:1px;font-weight:700;flex-shrink:0}
+.enc-open{background:rgba(255,45,45,.15);color:var(--accent3)}
+.enc-wpa{background:rgba(184,184,184,.12);color:var(--accent2)}
+.enc-wpa3{background:rgba(0,255,65,.12);color:var(--accent)}
+.deauth-btn{font-family:var(--sans);font-size:11px;font-weight:700;padding:7px 14px;border-radius:6px;background:rgba(255,45,45,.1);border:1px solid rgba(255,45,45,.3);color:var(--accent3);cursor:pointer;flex-shrink:0;letter-spacing:1px;transition:all .15s}
+.deauth-btn:hover{background:rgba(255,45,45,.2);box-shadow:0 0 8px rgba(255,45,45,.3)}
+
+/* ─────────────────────────── LOG + CLI ─────────────────────────── */
+.log-panel{flex-shrink:0;border-top:1px solid var(--border);background:var(--panel);display:flex;flex-direction:column;height:220px;transition:height .2s}
+.log-panel.collapsed{height:38px}
+.log-head{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--panel2)}
+.log-title{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--dim);display:flex;align-items:center;gap:8px}
+.log-title::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;box-shadow:0 0 6px var(--accent)}
+.log-tools{display:flex;gap:8px}
+.log-tool{font-family:var(--mono);font-size:11px;color:var(--dim);background:transparent;border:1px solid var(--border);padding:4px 10px;border-radius:4px;cursor:pointer;letter-spacing:1px;transition:all .15s}
+.log-tool:hover{color:var(--accent);border-color:var(--accent)}
+.log-body{padding:8px 14px;font-family:var(--mono);font-size:12px;flex:1;overflow-y:auto;line-height:1.7}
+.log-body::-webkit-scrollbar{width:6px}
+.log-body::-webkit-scrollbar-track{background:transparent}
+.log-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.log-body::-webkit-scrollbar-thumb:hover{background:var(--accent)}
 .ll{color:var(--dim)}
 .ll.o{color:var(--accent)}.ll.o::before{content:'▶ ';opacity:.6}
 .ll.i{color:var(--accent2)}.ll.i::before{content:'◀ ';opacity:.6}
 .ll.e{color:var(--accent3)}.ll.e::before{content:'✕ '}
 .ll.w{color:var(--accent4)}.ll.w::before{content:'⚠ '}
-.tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 14px;flex-shrink:0}
-.tabs::-webkit-scrollbar{display:none}
-.tab{font-family:var(--sans);font-size:12px;font-weight:600;padding:10px 14px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--dim);cursor:pointer;transition:all .15s;margin-bottom:-1px;white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.tab-content{display:none;padding:12px 14px}
-.tab-content.active{display:block}
-.grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:16px}
-.card-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.card-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.ci-g{background:rgba(0,255,65,.1)}.ci-b{background:rgba(184,184,184,.08)}.ci-r{background:rgba(255,45,45,.1)}.ci-x{background:rgba(255,255,255,.04)}
-.card-title{font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
-.card-desc{font-size:11px;color:var(--dim);margin-top:1px}
-.ct-g{color:var(--accent)}.ct-b{color:var(--accent2)}.ct-r{color:var(--accent3)}.ct-x{color:var(--mid)}
-.bg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.bg.c1{grid-template-columns:1fr}
-.btn{font-family:var(--sans);font-size:13px;font-weight:600;padding:12px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--text);cursor:pointer;text-align:left;transition:all .15s}
-.btn:active{opacity:.65;transform:scale(.97)}
-.btn .bl{display:block;font-size:13px;font-weight:600}
-.btn .bs{display:block;font-size:10px;color:var(--dim);margin-top:2px;font-weight:400;font-family:var(--mono)}
-.btn.stop{background:rgba(255,45,45,.06);border-color:rgba(255,45,45,.25);color:var(--accent3)}
-.btn.go{background:rgba(0,255,65,.06);border-color:rgba(0,255,65,.25);color:var(--accent)}
-.field-label{font-size:11px;font-weight:600;color:var(--dim);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;margin-top:14px}
-.irow{display:flex;gap:7px}
-.results-wrap{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);margin-top:12px;overflow:hidden;display:none}
-.results-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--panel2)}
-.rh-title{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--mid)}
-.rh-count{font-family:var(--mono);font-size:11px;color:var(--accent)}
-.ap-row{display:flex;align-items:center;padding:11px 14px;border-bottom:1px solid rgba(42,42,42,.5);gap:10px}
-.ap-row:last-child{border-bottom:none}
-.ap-info{flex:1;min-width:0}
-.ap-ssid{font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ap-bssid{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:1px}
-.rssi-wrap{display:flex;align-items:center;gap:6px;margin-top:3px}
-.rssi-bar{width:44px;height:3px;background:var(--border);border-radius:2px}
-.rssi-fill{height:100%;border-radius:2px;background:var(--accent)}
-.rssi-val{font-size:10px;color:var(--dim);font-family:var(--mono)}
-.enc-tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;letter-spacing:1px;font-weight:700;flex-shrink:0}
-.enc-open{background:rgba(255,45,45,.15);color:var(--accent3)}
-.enc-wpa{background:rgba(184,184,184,.12);color:var(--accent2)}
-.enc-wpa3{background:rgba(0,255,65,.12);color:var(--accent)}
-.deauth-btn{font-family:var(--sans);font-size:11px;font-weight:700;padding:6px 12px;border-radius:6px;background:rgba(255,45,45,.1);border:1px solid rgba(255,45,45,.3);color:var(--accent3);cursor:pointer;flex-shrink:0}
-.deauth-btn:active{opacity:.65}
-.cli-wrap{display:flex;margin:10px 14px 0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--panel)}
-.cli-prompt{font-family:var(--mono);font-size:10px;color:var(--accent);padding:12px 10px;background:rgba(0,255,65,.05);border-right:1px solid var(--border);display:flex;align-items:center;white-space:nowrap;flex-shrink:0}
-.cli-input{flex:1;font-family:var(--mono);font-size:13px;padding:12px 10px;background:transparent;border:none;color:var(--text);outline:none;min-width:0}
+
+.cli-wrap{display:flex;border-top:1px solid var(--border);background:var(--panel2);flex-shrink:0}
+.cli-prompt{font-family:var(--mono);font-size:12px;color:var(--accent);padding:12px 14px;background:rgba(0,255,65,.05);border-right:1px solid var(--border);display:flex;align-items:center;white-space:nowrap;flex-shrink:0;letter-spacing:1px}
+.cli-input{flex:1;font-family:var(--mono);font-size:13px;padding:12px 14px;background:transparent;border:none;color:var(--text);outline:none;min-width:0}
 .cli-input::placeholder{color:var(--dim)}
-.cli-send{font-family:var(--sans);font-size:12px;font-weight:600;padding:12px 14px;background:transparent;border-left:1px solid var(--border);color:var(--dim);cursor:pointer}
-.cli-send:active{color:var(--accent)}
-.toast{position:fixed;bottom:calc(var(--sb) + 72px);left:50%;transform:translateX(-50%) translateY(16px);font-family:var(--sans);font-size:13px;font-weight:600;padding:11px 20px;background:var(--panel2);border:1px solid var(--accent);border-radius:var(--r);color:var(--accent);z-index:9999;opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.cli-send{font-family:var(--sans);font-size:12px;font-weight:600;padding:0 20px;background:transparent;border-left:1px solid var(--border);color:var(--dim);cursor:pointer;letter-spacing:1px}
+.cli-send:hover{color:var(--accent);background:rgba(0,255,65,.04)}
+
+/* ─────────────────────────── TOAST ─────────────────────────── */
+.toast{position:fixed;top:24px;right:24px;font-family:var(--sans);font-size:13px;font-weight:600;padding:12px 22px;background:var(--panel);border:1px solid var(--accent);border-radius:var(--r);color:var(--accent);z-index:9999;opacity:0;transform:translateX(20px);transition:all .25s;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.toast.show{opacity:1;transform:translateX(0)}
 .toast.terror{border-color:var(--accent3);color:var(--accent3)}
 .toast.twarn{border-color:var(--accent2);color:var(--accent2)}
-.bnav{display:flex;background:rgba(10,10,10,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);padding-bottom:var(--sb);flex-shrink:0}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px 2px;cursor:pointer;gap:3px;background:transparent;border:none;font-family:var(--sans)}
-.nb:active{opacity:.5}
-.nb .ni{font-size:20px;filter:grayscale(.5)}
-.nb .nl{font-size:8px;color:var(--dim);letter-spacing:1px;font-family:var(--mono)}
-.nb.on .nl{color:var(--accent)}.nb.on .ni{filter:none}
+
+/* Scrollbars everywhere */
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:var(--panel2)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--mid)}
+
+/* Responsive fallback */
+@media(max-width:900px){
+  .sidebar{width:56px}
+  .side-btn{padding:14px 0;justify-content:center;font-size:0}
+  .side-btn .si{font-size:20px;width:auto}
+  .side-title,.side-foot{display:none}
+  .conn-inner{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 <div id="app">
-  <div class="safe-top"></div>
   <nav class="navbar">
     <div class="logo">
-      <svg width="26" height="26" viewBox="0 0 40 40" fill="none">
+      <svg width="30" height="30" viewBox="0 0 40 40" fill="none">
         <polygon points="20,3 36,12 36,28 20,37 4,28 4,12" stroke="#00ff41" stroke-width="1.5" fill="none" opacity="0.55"/>
         <path d="M14 12h9c3 0 5 2 5 4.5 0 1.8-1 3-2.5 3.5 2 .5 3.5 2 3.5 4.5 0 3-2.5 4.5-6 4.5h-9V12zm4 3v4h4c1.3 0 2-.8 2-2s-.7-2-2-2h-4zm0 7v4.5h5c1.5 0 2.5-.9 2.5-2.2 0-1.4-1-2.3-2.5-2.3h-5z" fill="#ff2d2d"/>
       </svg>
       <div>
         <div class="logo-title">BRU<span style="color:#fff">CE</span></div>
-        <div class="logo-sub" id="navSub">Not connected</div>
+        <div class="logo-sub" id="navSub">Command Panel · ESP32-S3</div>
       </div>
     </div>
     <div class="conn-area">
       <div class="status-pill"><div class="dot" id="statusDot"></div><span id="statusText">Offline</span></div>
-      <button class="conn-btn" id="connectBtn">Connect</button>
+      <button class="conn-btn" id="connectBtn">CONNECT</button>
     </div>
   </nav>
 
-  <div class="scroll" id="scroll">
+  <!-- ─────────────── CONNECT PAGE ─────────────── -->
+  <div class="page on" id="pg-connect">
+    <div class="conn-inner">
+      <div class="hero">
+        <div class="hero-icon">⚡</div>
+        <div class="hero-title">BRUCE</div>
+        <div class="hero-sub">Multi-tool firmware for the ESP32-S3. Connect over Wi-Fi to control your device from this panel, or try Demo Mode to explore the interface without hardware.</div>
+      </div>
 
-    <!-- CONNECT PAGE -->
-    <div class="page on" id="pg-connect">
-      <div class="conn-page">
-        <div class="hero">
-          <div class="hero-icon">⚡</div>
-          <div class="hero-title">BRUCE</div>
-          <div class="hero-sub">ESP32-S3 command panel. Connect this device to the same Wi-Fi as your Bruce board, then scan or enter its IP.</div>
+      <div class="conn-card">
+        <div class="conn-card-title" style="color:var(--accent)">🔍 AUTO-SCAN NETWORK</div>
+        <div class="conn-card-sub">Scans your local subnet for a Bruce device on ports 80 / 8080 / 8888.</div>
+        <button class="big-btn big-btn-g" id="scanBtn">🔍 SCAN FOR BRUCE</button>
+        <div class="scan-progress" id="scanProgress">
+          <div class="scan-bar-wrap"><div class="scan-bar" id="scanBar"></div></div>
+          <div class="scan-status" id="scanStatus">Scanning...</div>
         </div>
+        <div class="scan-results-list" id="scanResultsList"></div>
+      </div>
 
-        <div class="conn-card">
-          <div class="conn-card-title" style="color:var(--accent)">🔍 Auto-Scan Network</div>
-          <div class="conn-card-sub">Scans your local subnet for a Bruce device on ports 80 / 8080 / 8888.</div>
-          <button class="big-btn big-btn-g" id="scanBtn">🔍 Scan for Bruce</button>
-          <div class="scan-progress" id="scanProgress">
-            <div class="scan-bar-wrap"><div class="scan-bar" id="scanBar"></div></div>
-            <div class="scan-status" id="scanStatus">Scanning...</div>
-          </div>
-          <div class="scan-results-list" id="scanResultsList"></div>
+      <div class="conn-card">
+        <div class="conn-card-title" style="color:var(--mid)">⌨️ MANUAL IP ENTRY</div>
+        <div class="conn-card-sub">Enter the ESP32-S3 IP. In AP mode Bruce serves at <b>192.168.4.1</b>.</div>
+        <div class="manual-row">
+          <input type="text" id="manualIP" placeholder="192.168.4.1" autocomplete="off">
+          <input type="text" id="manualPort" placeholder="80" value="80" style="width:90px;flex-shrink:0">
+          <button class="ibtn ibtn-g" id="manualConnBtn">GO</button>
         </div>
+      </div>
 
-        <div class="conn-card" id="knownCard" style="display:none">
-          <div class="conn-card-title" style="color:var(--accent2)">⭐ Previously Found</div>
-          <div id="knownList"></div>
-        </div>
+      <div class="conn-card" id="knownCard" style="display:none">
+        <div class="conn-card-title" style="color:var(--accent2)">⭐ PREVIOUSLY FOUND</div>
+        <div id="knownList"></div>
+      </div>
 
-        <div class="conn-card">
-          <div class="conn-card-title" style="color:var(--mid)">⌨️ Manual IP Entry</div>
-          <div class="conn-card-sub">Enter the ESP32-S3 IP directly. When Bruce is in AP mode, it usually serves at <b>192.168.4.1</b>.</div>
-          <div class="manual-row">
-            <input type="text" id="manualIP" placeholder="192.168.4.1" inputmode="decimal" autocomplete="off">
-            <input type="text" id="manualPort" placeholder="80" value="80" inputmode="numeric" style="width:70px;flex-shrink:0">
-            <button class="ibtn ibtn-g" id="manualConnBtn">Go</button>
-          </div>
-        </div>
-
-        <div class="divider">OR TRY WITHOUT A DEVICE</div>
-
-        <div class="conn-card">
-          <div class="conn-card-title" style="color:var(--accent2)">🎮 Demo Mode</div>
-          <div class="conn-card-sub">Full UI with simulated Bruce responses — no hardware required.</div>
-          <button class="big-btn big-btn-a" id="demoBtn">🎮 Launch Demo Mode</button>
-        </div>
-        <div class="sp"></div>
+      <div class="conn-card">
+        <div class="conn-card-title" style="color:var(--accent2)">🎮 DEMO MODE</div>
+        <div class="conn-card-sub">Full UI with simulated Bruce responses — no hardware required.</div>
+        <button class="big-btn big-btn-a" id="demoBtn">🎮 LAUNCH DEMO MODE</button>
       </div>
     </div>
+  </div>
 
-    <!-- MAIN PAGE -->
-    <div class="page" id="pg-main">
-      <div class="log-wrap">
-        <div class="log-head"><span>SERIAL LOG</span><button class="log-clear" id="logClear">CLEAR</button></div>
-        <div class="log-body" id="logBody"><div class="ll">Ready</div></div>
+  <!-- ─────────────── MAIN PAGE ─────────────── -->
+  <div class="page" id="pg-main">
+    <aside class="sidebar">
+      <div class="side-title">MODULES</div>
+      <div class="side-nav">
+        <button class="side-btn on" data-tab="wifi"><span class="si">📡</span>Wi-Fi</button>
+        <button class="side-btn" data-tab="ble"><span class="si">🔵</span>Bluetooth</button>
+        <button class="side-btn" data-tab="rf"><span class="si">📻</span>SubGHz</button>
+        <button class="side-btn" data-tab="ir"><span class="si">🔴</span>Infrared</button>
+        <button class="side-btn" data-tab="nfc"><span class="si">💳</span>RFID / NFC</button>
+        <button class="side-btn" data-tab="system"><span class="si">⚙️</span>System</button>
       </div>
+      <div class="side-foot" id="sideFoot">DISCONNECTED</div>
+    </aside>
 
-      <div class="tabs">
-        <button class="tab active" data-tab="wifi">📡 Wi-Fi</button>
-        <button class="tab" data-tab="ble">🔵 Bluetooth</button>
-        <button class="tab" data-tab="rf">📻 SubGHz</button>
-        <button class="tab" data-tab="ir">🔴 Infrared</button>
-        <button class="tab" data-tab="nfc">💳 RFID/NFC</button>
-        <button class="tab" data-tab="system">⚙️ System</button>
-      </div>
+    <section class="workspace">
 
       <!-- WIFI -->
-      <div class="tab-content active" id="tab-wifi">
+      <div class="tab-content on" id="tab-wifi">
+        <div class="tab-head">
+          <h2>WI-FI</h2>
+          <p>2.4 GHz scanning, injection & captive portals</p>
+        </div>
         <div class="grid">
           <div class="card">
-            <div class="card-head"><div class="card-icon ci-g">📡</div><div><div class="card-title ct-g">Scanning</div><div class="card-desc">Find nearby networks & clients</div></div></div>
+            <div class="card-head"><div class="card-icon ci-g">📡</div><div><div class="card-title ct-g">Scanning</div><div class="card-desc">Find nearby networks and clients</div></div></div>
             <div class="bg">
               <button class="btn go" data-fn="wifiScan"><span class="bl">Scan APs</span><span class="bs">wifiscan</span></button>
               <button class="btn" data-cmd="wifisniff"><span class="bl">Sniff Packets</span><span class="bs">wifisniff</span></button>
               <button class="btn" data-cmd="wifiscan -s"><span class="bl">Scan Stations</span><span class="bs">wifiscan -s</span></button>
-              <button class="btn stop" data-cmd="stopwifi"><span class="bl">Stop Scan</span><span class="bs">stopwifi</span></button>
+              <button class="btn stop" data-cmd="stopwifi"><span class="bl">Stop</span><span class="bs">stopwifi</span></button>
             </div>
           </div>
           <div class="card">
             <div class="card-head"><div class="card-icon ci-r">⚡</div><div><div class="card-title ct-r">Deauth Attack</div><div class="card-desc">Kick clients off an AP</div></div></div>
             <div class="bg">
               <button class="btn stop" data-cmd="deauth"><span class="bl">Deauth Selected</span><span class="bs">deauth</span></button>
-              <button class="btn stop" data-cmd="deauth all"><span class="bl">Deauth All APs</span><span class="bs">deauth all</span></button>
+              <button class="btn stop" data-cmd="deauth all"><span class="bl">Deauth All</span><span class="bs">deauth all</span></button>
               <button class="btn" data-cmd="stopdeauth"><span class="bl">Stop Deauth</span><span class="bs">stopdeauth</span></button>
             </div>
-            <div class="irow" style="margin-top:10px">
-              <input type="text" id="deauthNum" placeholder="AP index from scan" inputmode="numeric">
+            <div class="field-label">AP index from scan</div>
+            <div class="irow">
+              <input type="text" id="deauthNum" placeholder="0">
               <button class="ibtn ibtn-r" data-fn="selectDeauth">Deauth</button>
             </div>
           </div>
@@ -267,21 +303,22 @@ select{flex-shrink:0;width:auto;min-width:70px}
               <button class="btn" data-cmd="beaconspam -l"><span class="bl">Clone Nearby</span><span class="bs">beaconspam -l</span></button>
               <button class="btn stop" data-cmd="stopspam"><span class="bl">Stop Spam</span><span class="bs">stopspam</span></button>
             </div>
-            <div class="irow" style="margin-top:10px">
-              <input type="text" id="beaconSSID" placeholder="Custom SSID">
-              <button class="ibtn ibtn-g" data-fn="beaconCustom">Add & Spam</button>
+            <div class="field-label">Custom SSID</div>
+            <div class="irow">
+              <input type="text" id="beaconSSID" placeholder="My Fake Network">
+              <button class="ibtn ibtn-g" data-fn="beaconCustom">Spam</button>
             </div>
           </div>
           <div class="card">
             <div class="card-head"><div class="card-icon ci-r">🕸️</div><div><div class="card-title ct-r">Evil Portal</div><div class="card-desc">Captive portal credential capture</div></div></div>
-            <div class="field-label">Template</div>
+            <div class="field-label">Template file</div>
             <input type="text" id="portalTpl" placeholder="default" value="default">
             <div class="field-label">Fake SSID</div>
-            <div class="irow" style="margin-top:0">
+            <div class="irow">
               <input type="text" id="portalSSID" placeholder="Free Airport Wifi">
               <button class="ibtn ibtn-r" data-fn="startPortal">Start</button>
             </div>
-            <div class="bg c1" style="margin-top:10px">
+            <div class="bg c1" style="margin-top:12px">
               <button class="btn" data-cmd="evilportal stop"><span class="bl">Stop Portal</span><span class="bs">evilportal stop</span></button>
             </div>
           </div>
@@ -290,14 +327,17 @@ select{flex-shrink:0;width:auto;min-width:70px}
           <div class="results-head"><span class="rh-title">Scan Results</span><span class="rh-count" id="wifiCount">—</span></div>
           <div id="wifiBody"></div>
         </div>
-        <div class="sp"></div>
       </div>
 
       <!-- BLE -->
       <div class="tab-content" id="tab-ble">
+        <div class="tab-head">
+          <h2>BLUETOOTH</h2>
+          <p>BLE discovery, spam packets and HID emulation</p>
+        </div>
         <div class="grid">
           <div class="card">
-            <div class="card-head"><div class="card-icon ci-b">🔍</div><div><div class="card-title ct-b">BLE Scanning</div><div class="card-desc">Find nearby Bluetooth devices</div></div></div>
+            <div class="card-head"><div class="card-icon ci-b">🔍</div><div><div class="card-title ct-b">BLE Scanning</div><div class="card-desc">Find nearby BLE devices</div></div></div>
             <div class="bg">
               <button class="btn go" data-cmd="blescan"><span class="bl">Scan All BLE</span><span class="bs">blescan</span></button>
               <button class="btn" data-cmd="blescan airtag"><span class="bl">Find AirTags</span><span class="bs">blescan airtag</span></button>
@@ -325,12 +365,15 @@ select{flex-shrink:0;width:auto;min-width:70px}
             </div>
           </div>
         </div>
-        <div class="sp"></div>
       </div>
 
-      <!-- SUBGHZ / RF -->
+      <!-- RF -->
       <div class="tab-content" id="tab-rf">
-        <div class="notice"><span class="ni">⚠️</span><div>Requires CC1101 module attached to the ESP32-S3. Set frequency before capture/replay.</div></div>
+        <div class="tab-head">
+          <h2>SUBGHZ</h2>
+          <p>Sub-1 GHz radio via CC1101 module</p>
+        </div>
+        <div class="notice"><span class="ni">⚠️</span><div>Requires a CC1101 module wired to the ESP32-S3. Set frequency before capture or replay.</div></div>
         <div class="grid">
           <div class="card">
             <div class="card-head"><div class="card-icon ci-g">📻</div><div><div class="card-title ct-g">Scan & Capture</div><div class="card-desc">Sweep bands and record signals</div></div></div>
@@ -341,8 +384,8 @@ select{flex-shrink:0;width:auto;min-width:70px}
               <button class="btn stop" data-cmd="stoprf"><span class="bl">Stop</span><span class="bs">stoprf</span></button>
             </div>
             <div class="field-label">Frequency (MHz)</div>
-            <div class="irow" style="margin-top:0">
-              <input type="text" id="rfFreq" placeholder="433.92" inputmode="decimal">
+            <div class="irow">
+              <input type="text" id="rfFreq" placeholder="433.92">
               <button class="ibtn ibtn-g" data-fn="rfSetFreq">Set</button>
             </div>
           </div>
@@ -353,17 +396,21 @@ select{flex-shrink:0;width:auto;min-width:70px}
               <button class="btn stop" data-cmd="rfjammer"><span class="bl">Jam Band</span><span class="bs">rfjammer</span></button>
               <button class="btn" data-cmd="stoprf"><span class="bl">Stop TX</span><span class="bs">stoprf</span></button>
             </div>
-            <div class="irow" style="margin-top:10px">
-              <input type="text" id="rfFile" placeholder="Filename to replay">
+            <div class="field-label">Filename to replay</div>
+            <div class="irow">
+              <input type="text" id="rfFile" placeholder="/sd/rf/capture.sub">
               <button class="ibtn ibtn-r" data-fn="rfReplayFile">Send</button>
             </div>
           </div>
         </div>
-        <div class="sp"></div>
       </div>
 
-      <!-- INFRARED -->
+      <!-- IR -->
       <div class="tab-content" id="tab-ir">
+        <div class="tab-head">
+          <h2>INFRARED</h2>
+          <p>Capture, replay and TV-B-Gone attacks</p>
+        </div>
         <div class="grid">
           <div class="card">
             <div class="card-head"><div class="card-icon ci-r">📺</div><div><div class="card-title ct-r">TV-B-Gone</div><div class="card-desc">Blast POWER codes at any TV</div></div></div>
@@ -381,17 +428,21 @@ select{flex-shrink:0;width:auto;min-width:70px}
               <button class="btn" data-cmd="irsend"><span class="bl">Send Last</span><span class="bs">irsend</span></button>
               <button class="btn" data-cmd="irlist"><span class="bl">List Saved</span><span class="bs">irlist</span></button>
             </div>
-            <div class="irow" style="margin-top:10px">
-              <input type="text" id="irFile" placeholder="Filename to send">
+            <div class="field-label">Filename to send</div>
+            <div class="irow">
+              <input type="text" id="irFile" placeholder="/sd/ir/samsung.ir">
               <button class="ibtn ibtn-g" data-fn="irSendFile">Send</button>
             </div>
           </div>
         </div>
-        <div class="sp"></div>
       </div>
 
-      <!-- RFID / NFC -->
+      <!-- NFC -->
       <div class="tab-content" id="tab-nfc">
+        <div class="tab-head">
+          <h2>RFID / NFC</h2>
+          <p>125 kHz RFID and 13.56 MHz NFC</p>
+        </div>
         <div class="notice"><span class="ni">⚠️</span><div>Requires PN532 (NFC) or RC522 (125 kHz RFID) module wired to Bruce.</div></div>
         <div class="grid">
           <div class="card">
@@ -411,17 +462,21 @@ select{flex-shrink:0;width:auto;min-width:70px}
               <button class="btn stop" data-cmd="nfc emulate"><span class="bl">Emulate Last</span><span class="bs">nfc emulate</span></button>
               <button class="btn stop" data-cmd="nfc mifarechk"><span class="bl">Check Keys</span><span class="bs">nfc mifarechk</span></button>
             </div>
-            <div class="irow" style="margin-top:10px">
-              <input type="text" id="nfcFile" placeholder="UID hex to emulate">
+            <div class="field-label">UID hex to emulate</div>
+            <div class="irow">
+              <input type="text" id="nfcFile" placeholder="04 A2 3B 5C 6D 7E 8F">
               <button class="ibtn ibtn-r" data-fn="nfcEmulate">Emulate</button>
             </div>
           </div>
         </div>
-        <div class="sp"></div>
       </div>
 
       <!-- SYSTEM -->
       <div class="tab-content" id="tab-system">
+        <div class="tab-head">
+          <h2>SYSTEM</h2>
+          <p>Device info, files, Wi-Fi join and display</p>
+        </div>
         <div class="grid">
           <div class="card">
             <div class="card-head"><div class="card-icon ci-x">🖥️</div><div><div class="card-title ct-x">Device</div><div class="card-desc">Info & control</div></div></div>
@@ -438,7 +493,7 @@ select{flex-shrink:0;width:auto;min-width:70px}
             <div class="field-label">SSID</div>
             <input type="text" id="wifiName" placeholder="Network name">
             <div class="field-label">Password</div>
-            <div class="irow" style="margin-top:0">
+            <div class="irow">
               <input type="password" id="wifiPass" placeholder="Leave blank if open">
               <button class="ibtn ibtn-g" data-fn="connectWifi">Join</button>
             </div>
@@ -446,10 +501,10 @@ select{flex-shrink:0;width:auto;min-width:70px}
           <div class="card">
             <div class="card-head"><div class="card-icon ci-x">💡</div><div><div class="card-title ct-x">Display</div><div class="card-desc">Backlight & orientation</div></div></div>
             <div class="bg">
-              <button class="btn" data-cmd="brightness 25"><span class="bl">Brightness 25%</span><span class="bs">brightness 25</span></button>
-              <button class="btn" data-cmd="brightness 100"><span class="bl">Brightness 100%</span><span class="bs">brightness 100</span></button>
-              <button class="btn" data-cmd="rotate"><span class="bl">Rotate Screen</span><span class="bs">rotate</span></button>
-              <button class="btn" data-cmd="sleep"><span class="bl">Sleep Now</span><span class="bs">sleep</span></button>
+              <button class="btn" data-cmd="brightness 25"><span class="bl">Dim 25%</span><span class="bs">brightness 25</span></button>
+              <button class="btn" data-cmd="brightness 100"><span class="bl">Full 100%</span><span class="bs">brightness 100</span></button>
+              <button class="btn" data-cmd="rotate"><span class="bl">Rotate</span><span class="bs">rotate</span></button>
+              <button class="btn" data-cmd="sleep"><span class="bl">Sleep</span><span class="bs">sleep</span></button>
             </div>
           </div>
           <div class="card">
@@ -458,27 +513,34 @@ select{flex-shrink:0;width:auto;min-width:70px}
               <button class="btn" data-cmd="ls"><span class="bl">List Files</span><span class="bs">ls</span></button>
               <button class="btn" data-cmd="ls /sd"><span class="bl">List SD</span><span class="bs">ls /sd</span></button>
             </div>
-            <div class="irow" style="margin-top:10px">
-              <input type="text" id="fileArg" placeholder="Path (e.g. /sd/log.txt)">
+            <div class="field-label">Path</div>
+            <div class="irow">
+              <input type="text" id="fileArg" placeholder="/sd/log.txt">
               <button class="ibtn ibtn-b" data-fn="fileCat">Cat</button>
               <button class="ibtn ibtn-r" data-fn="fileRm">Rm</button>
             </div>
           </div>
         </div>
-        <div class="cli-wrap">
-          <div class="cli-prompt">bruce~$</div>
-          <input class="cli-input" id="cliInput" type="text" placeholder="Raw command…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-          <button class="cli-send" id="cliSend">↵</button>
-        </div>
-        <div class="sp"></div>
       </div>
 
-    </div><!-- /pg-main -->
-  </div><!-- /scroll -->
+      <!-- LOG + CLI -->
+      <div class="log-panel" id="logPanel">
+        <div class="log-head">
+          <div class="log-title">SERIAL LOG</div>
+          <div class="log-tools">
+            <button class="log-tool" id="logCollapse">COLLAPSE</button>
+            <button class="log-tool" id="logClear">CLEAR</button>
+          </div>
+        </div>
+        <div class="log-body" id="logBody"><div class="ll">Ready. Connect or launch Demo Mode from the CONNECT button.</div></div>
+        <div class="cli-wrap">
+          <div class="cli-prompt">bruce~$</div>
+          <input class="cli-input" id="cliInput" type="text" placeholder="Type a raw command and press Enter…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <button class="cli-send" id="cliSend">SEND ↵</button>
+        </div>
+      </div>
 
-  <div class="bnav" id="bnav" style="display:none">
-    <button class="nb on" data-pg="main"><span class="ni">🎛️</span><span class="nl">CONTROL</span></button>
-    <button class="nb" data-pg="connect"><span class="ni">🔌</span><span class="nl">CONNECT</span></button>
+    </section>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -486,12 +548,14 @@ select{flex-shrink:0;width:auto;min-width:70px}
 <script>
 let connected=false,demoMode=false,brURL='',brIP='',scanResults=[],activeScanning=null,ws=null;
 let knownHosts=[];try{knownHosts=JSON.parse(localStorage.getItem('bruce_hosts')||'[]')}catch(e){}
+let cmdHistory=[],histIdx=-1;
+try{cmdHistory=JSON.parse(localStorage.getItem('bruce_history')||'[]');}catch(e){}
 
 function log(msg,type=''){
   const b=document.getElementById('logBody');
   const d=document.createElement('div');d.className='ll '+type;d.textContent=msg;
   b.appendChild(d);b.scrollTop=b.scrollHeight;
-  while(b.children.length>200)b.removeChild(b.firstChild);
+  while(b.children.length>500)b.removeChild(b.firstChild);
 }
 
 function toast(msg,type=''){
@@ -502,13 +566,16 @@ function toast(msg,type=''){
 }
 
 function setStatus(state,label){
-  const map={off:['','Offline'],on:['on','Connected'],demo:['scan','Demo Mode'],scanning:['scan','Scanning...']};
+  const map={off:['','Offline'],on:['on','Connected'],demo:['scan','Demo Mode'],scanning:['scan','Scanning…']};
   const[cls,def]=map[state]||['','Offline'];
   document.getElementById('statusDot').className='dot '+cls;
   document.getElementById('statusText').textContent=label||def;
-  document.getElementById('navSub').textContent=label||def;
+  const sub=document.getElementById('navSub');
+  if(sub)sub.textContent=state==='on'?`Connected · ${label||brIP}`:state==='demo'?'Demo Mode':'Command Panel · ESP32-S3';
+  const foot=document.getElementById('sideFoot');
+  if(foot)foot.textContent=state==='on'?`● ${brIP}`:state==='demo'?'● DEMO MODE':'DISCONNECTED';
   const btn=document.getElementById('connectBtn');
-  btn.textContent=(state==='on'||state==='demo')?'Disconnect':'Connect';
+  btn.textContent=(state==='on'||state==='demo')?'DISCONNECT':'CONNECT';
   btn.className='conn-btn'+(state==='on'?' live':state==='demo'?' demo-live':'');
 }
 
@@ -537,13 +604,13 @@ let scanAbort=false;
 
 async function startNetworkScan(){
   const btn=document.getElementById('scanBtn');
-  if(btn.dataset.scanning){scanAbort=true;btn.dataset.scanning='';btn.textContent='🔍 Scan for Bruce';document.getElementById('scanProgress').style.display='none';return;}
-  scanAbort=false;btn.dataset.scanning='1';btn.textContent='⏹ Stop Scan';
+  if(btn.dataset.scanning){scanAbort=true;btn.dataset.scanning='';btn.textContent='🔍 SCAN FOR BRUCE';document.getElementById('scanProgress').style.display='none';return;}
+  scanAbort=false;btn.dataset.scanning='1';btn.textContent='⏹ STOP SCAN';
   const prog=document.getElementById('scanProgress'),bar=document.getElementById('scanBar'),status=document.getElementById('scanStatus'),list=document.getElementById('scanResultsList');
   prog.style.display='block';list.style.display='none';list.innerHTML='';setStatus('scanning');
   const subnet=await getLocalSubnet();
-  if(!subnet){status.textContent='Could not detect subnet. Enter IP manually.';toast('Could not detect subnet','warn');btn.dataset.scanning='';btn.textContent='🔍 Scan for Bruce';setStatus('off');return;}
-  status.textContent='Scanning '+subnet+'.0/24...';
+  if(!subnet){status.textContent='Could not detect subnet. Enter IP manually.';toast('Could not detect subnet','warn');btn.dataset.scanning='';btn.textContent='🔍 SCAN FOR BRUCE';setStatus('off');return;}
+  status.textContent='Scanning '+subnet+'.0/24…';
   const found=[];let done=0;
   for(let start=1;start<=254&&!scanAbort;start+=20){
     const proms=[];
@@ -555,8 +622,8 @@ async function startNetworkScan(){
     status.textContent=`Scanning ${subnet}.0/24 — ${done}/254 (${found.length} found)`;
     if(found.length)renderScanResults(found,list);
   }
-  btn.dataset.scanning='';btn.textContent='🔍 Scan for Bruce';prog.style.display='none';setStatus('off');
-  if(found.length){list.style.display='block';toast(found.length+' device(s) found!');}
+  btn.dataset.scanning='';btn.textContent='🔍 SCAN FOR BRUCE';prog.style.display='none';setStatus('off');
+  if(found.length){list.style.display='block';toast(found.length+' device(s) found');}
   else{status.textContent='No devices found.';prog.style.display='block';bar.style.width='100%';toast('No devices found — try manual IP','warn');}
 }
 
@@ -583,12 +650,12 @@ async function getLocalSubnet(){
 
 function renderScanResults(found,list){
   list.style.display='block';
-  list.innerHTML=found.map(h=>`<div class="scan-item" data-ip="${h.ip}" data-port="${h.port}"><div><div class="scan-item-host">Bruce · ${h.ip}</div><div class="scan-item-ip">http://${h.ip}:${h.port}</div></div><div class="scan-item-badge">Tap to Connect</div></div>`).join('');
+  list.innerHTML=found.map(h=>`<div class="scan-item" data-ip="${h.ip}" data-port="${h.port}"><div><div class="scan-item-host">Bruce · ${h.ip}</div><div class="scan-item-ip">http://${h.ip}:${h.port}</div></div><div class="scan-item-badge">Click to Connect</div></div>`).join('');
 }
 
 async function connectTo(ip,port){
   port=port||80;brIP=ip;brURL='http://'+ip+':'+port;
-  log('Connecting to '+brURL+'...','w');setStatus('scanning','Connecting...');
+  log('Connecting to '+brURL+'…','w');setStatus('scanning','Connecting…');
   let ok=false;
   try{await fetch(brURL+'/',{signal:AbortSignal.timeout(3000),mode:'no-cors'});ok=true;}catch(e){}
   const wsOk=await tryWS('ws://'+ip+':'+port+'/ws');
@@ -611,23 +678,32 @@ function tryWS(url){
 
 async function sendCmd(cmd){
   if(!cmd||!cmd.trim())return;
+  cmd=cmd.trim();
   log(cmd,'o');
+  if(cmdHistory[cmdHistory.length-1]!==cmd){
+    cmdHistory.push(cmd);
+    if(cmdHistory.length>100)cmdHistory.shift();
+    try{localStorage.setItem('bruce_history',JSON.stringify(cmdHistory));}catch(e){}
+  }
+  histIdx=cmdHistory.length;
   if(demoMode){
     setTimeout(()=>{
       const r={
-        'wifiscan':'[BRUCE] SSID: HomeNet_5G | BSSID: AA:BB:CC:11:22:33 | RSSI: -47 | ENC: WPA2\n[BRUCE] SSID: xfinitywifi | BSSID: 44:55:66:77:88:99 | RSSI: -68 | ENC: OPEN\n[BRUCE] SSID: PixelPhone | BSSID: 12:34:56:78:9A:BC | RSSI: -55 | ENC: WPA3\n[BRUCE] SSID: linksys | BSSID: 00:11:22:33:44:55 | RSSI: -82 | ENC: WPA\n[BRUCE] Scan complete — 4 APs',
-        'help':'[BRUCE] wifiscan, beaconspam, deauth, evilportal, blescan, blespam, rfscan, tvbgone, nfc read, rfid read, reboot',
-        'info':'[BRUCE] Bruce v1.10.3 // ESP32-S3 // Free heap 218 KB // Uptime 00:12:47',
-        'battery':'[BRUCE] Battery: 78% (3.94 V) — Charging: no',
+        'wifiscan':'[BRUCE] SSID: HomeNet_5G | BSSID: AA:BB:CC:11:22:33 | RSSI: -47 | ENC: WPA2\n[BRUCE] SSID: xfinitywifi | BSSID: 44:55:66:77:88:99 | RSSI: -68 | ENC: OPEN\n[BRUCE] SSID: PixelPhone | BSSID: 12:34:56:78:9A:BC | RSSI: -55 | ENC: WPA3\n[BRUCE] SSID: linksys | BSSID: 00:11:22:33:44:55 | RSSI: -82 | ENC: WPA\n[BRUCE] SSID: NETGEAR-Guest | BSSID: DE:AD:BE:EF:00:01 | RSSI: -74 | ENC: WPA2\n[BRUCE] Scan complete — 5 APs',
+        'help':'[BRUCE] Available: wifiscan, wifisniff, beaconspam, deauth, evilportal, blescan, blespam, blehid, rfscan, rfrecord, rfreplay, rfjammer, tvbgone, irrecord, irsend, nfc, rfid, wificonnect, brightness, ls, cat, rm, info, battery, reboot, stopall',
+        'info':'[BRUCE] Bruce v1.10.3 // ESP32-S3-DevKitC-1 // Flash 8MB PSRAM 8MB // Free heap 218 KB // Uptime 00:12:47 // MAC: 34:B7:DA:5F:8C:20',
+        'battery':'[BRUCE] Battery: 78% (3.94 V) — Charging: no — Runtime: ~4h 12m',
         'stopall':'[BRUCE] All ops halted.',
         'reboot':'[BRUCE] Rebooting…',
-        'blescan':'[BRUCE] DEV: 4C:78:xx:xx AirPods Pro | RSSI: -41\n[BRUCE] DEV: 20:83:xx:xx Fitbit | RSSI: -59\n[BRUCE] DEV: 6E:12:xx:xx AirTag | RSSI: -63',
-        'rfscan':'[BRUCE] Sweeping 300-928 MHz…\n[BRUCE] Peak @ 433.92 MHz (-32 dBm)\n[BRUCE] Peak @ 315.00 MHz (-71 dBm)',
-        'tvbgone':'[BRUCE] Blasting 233 POWER codes… done.',
-        'nfc read':'[BRUCE] UID: 04 A2 3B 5C 6D 7E 8F | ATQA: 0044 | SAK: 00 | MIFARE Ultralight',
-        'rfid read':'[BRUCE] EM4100 UID: 06 00 AB CD EF (dec: 11259375)'
+        'blescan':'[BRUCE] DEV: 4C:78:xx:xx AirPods Pro | RSSI: -41\n[BRUCE] DEV: 20:83:xx:xx Fitbit Charge 5 | RSSI: -59\n[BRUCE] DEV: 6E:12:xx:xx AirTag | RSSI: -63\n[BRUCE] DEV: A0:E6:F8:xx Unknown | RSSI: -78',
+        'rfscan':'[BRUCE] Sweeping 300-928 MHz…\n[BRUCE] Peak @ 433.92 MHz (-32 dBm)\n[BRUCE] Peak @ 315.00 MHz (-71 dBm)\n[BRUCE] Peak @ 868.30 MHz (-58 dBm)',
+        'tvbgone':'[BRUCE] Blasting 233 POWER codes… done in 68 s.',
+        'nfc read':'[BRUCE] UID: 04 A2 3B 5C 6D 7E 8F | ATQA: 0044 | SAK: 00 | Type: MIFARE Ultralight',
+        'rfid read':'[BRUCE] EM4100 UID: 06 00 AB CD EF (dec: 11259375) — Facility 6 Card 43981',
+        'ls':'[BRUCE] /rfid/  /nfc/  /rf/  /ir/  /portals/  boot.log  config.json',
+        'ls /sd':'[BRUCE] rfid/office.rfd  nfc/gym.nfc  rf/garage.sub  ir/samsung.ir  portals/google.html',
       };
-      const resp=r[cmd.trim()]||'[BRUCE] OK: '+cmd;
+      const resp=r[cmd]||'[BRUCE] OK: '+cmd;
       resp.split('\n').forEach(l=>{log(l,'i');handleLine(l);});
     },400);return;
   }
@@ -642,22 +718,20 @@ async function sendCmd(cmd){
 function doDisconnect(){
   if(ws){try{ws.close();}catch(e){}ws=null;}
   connected=false;demoMode=false;brIP='';brURL='';setStatus('off');log('Disconnected','e');
-  document.getElementById('bnav').style.display='none';showPage('connect');
+  showPage('connect');
 }
 
 function startDemo(){demoMode=true;setStatus('demo');log('Demo mode — responses are simulated','w');toast('Demo mode active');showMain();}
-function showMain(){showPage('main');document.getElementById('bnav').style.display='flex';}
+function showMain(){showPage('main');}
 
 function showPage(name){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   const pg=document.getElementById('pg-'+name);if(pg)pg.classList.add('on');
-  document.querySelectorAll('.nb').forEach(b=>b.classList.toggle('on',b.dataset.pg===name));
-  document.getElementById('scroll').scrollTop=0;
 }
 
 function switchTab(name){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.toggle('active',t.id==='tab-'+name));
+  document.querySelectorAll('.side-btn').forEach(t=>t.classList.toggle('on',t.dataset.tab===name));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.toggle('on',t.id==='tab-'+name));
 }
 
 function handleLine(line){
@@ -676,13 +750,13 @@ function wifiScan(){scanResults=[];activeScanning='wifi';const rw=document.getEl
 function renderWifi(){
   const rw=document.getElementById('wifiResults'),rc=document.getElementById('wifiCount'),rb=document.getElementById('wifiBody');
   if(!rw||!rc||!rb)return;rw.style.display='block';rc.textContent=scanResults.length+' networks';
-  if(!scanResults.length){rb.innerHTML='<div style="padding:16px;text-align:center;font-size:12px;color:var(--dim)">No networks parsed</div>';return;}
+  if(!scanResults.length){rb.innerHTML='<div style="padding:20px;text-align:center;font-size:12px;color:var(--dim)">No networks parsed</div>';return;}
   rb.innerHTML='';
   scanResults.forEach((n,i)=>{
     const pct=Math.min(100,Math.max(0,(n.rssi+100)*2));
     const ec=n.enc==='OPEN'?'enc-open':n.enc==='WPA3'?'enc-wpa3':'enc-wpa';
     const row=document.createElement('div');row.className='ap-row';
-    row.innerHTML=`<div class="ap-info"><div class="ap-ssid">${n.ssid}</div><div class="ap-bssid">${n.bssid}</div><div class="rssi-wrap"><div class="rssi-bar"><div class="rssi-fill" style="width:${pct}%"></div></div><span class="rssi-val">${n.rssi} dBm</span></div></div><span class="enc-tag ${ec}">${n.enc}</span><button class="deauth-btn" data-idx="${i}">Deauth</button>`;
+    row.innerHTML=`<div class="ap-info"><div class="ap-ssid">${n.ssid}</div><div class="ap-bssid">${n.bssid}</div><div class="rssi-wrap"><div class="rssi-bar"><div class="rssi-fill" style="width:${pct}%"></div></div><span class="rssi-val">${n.rssi} dBm</span></div></div><span class="enc-tag ${ec}">${n.enc}</span><button class="deauth-btn" data-idx="${i}">DEAUTH</button>`;
     rb.appendChild(row);
   });
 }
@@ -691,7 +765,7 @@ const actions={
   selectDeauth(){const n=document.getElementById('deauthNum')?.value.trim();if(!n){toast('Enter AP number from scan','warn');return;}sendCmd('select '+n);setTimeout(()=>sendCmd('deauth'),300);toast('Deauthing AP '+n+'…');},
   beaconCustom(){const s=document.getElementById('beaconSSID')?.value.trim();if(!s){toast('Enter an SSID first','warn');return;}sendCmd('beaconspam '+s);toast('Broadcasting: '+s);},
   startPortal(){const tpl=document.getElementById('portalTpl')?.value.trim()||'default',ssid=document.getElementById('portalSSID')?.value.trim();if(!ssid){toast('Enter a fake SSID','warn');return;}sendCmd(`evilportal ${tpl} ${ssid}`);toast('Starting portal: '+ssid);},
-  rfSetFreq(){const f=document.getElementById('rfFreq')?.value.trim();if(!f){toast('Enter a frequency (MHz)','warn');return;}sendCmd('rffreq '+f);},
+  rfSetFreq(){const f=document.getElementById('rfFreq')?.value.trim();if(!f){toast('Enter a frequency','warn');return;}sendCmd('rffreq '+f);},
   rfReplayFile(){const f=document.getElementById('rfFile')?.value.trim();if(!f){toast('Enter filename','warn');return;}sendCmd('rfreplay '+f);},
   irSendFile(){const f=document.getElementById('irFile')?.value.trim();if(!f){toast('Enter filename','warn');return;}sendCmd('irsend '+f);},
   nfcEmulate(){const u=document.getElementById('nfcFile')?.value.trim();if(!u){toast('Enter UID hex','warn');return;}sendCmd('nfc emulate '+u);},
@@ -704,8 +778,7 @@ const actions={
 document.addEventListener('click',e=>{
   const cmd=e.target.closest('[data-cmd]');if(cmd&&!cmd.dataset.fn){sendCmd(cmd.dataset.cmd);return;}
   const fn=e.target.closest('[data-fn]');if(fn){const f=actions[fn.dataset.fn];if(f)f();return;}
-  const pg=e.target.closest('[data-pg]');if(pg){showPage(pg.dataset.pg);return;}
-  const tab=e.target.closest('[data-tab]');if(tab){switchTab(tab.dataset.tab);return;}
+  const tab=e.target.closest('.side-btn[data-tab]');if(tab){switchTab(tab.dataset.tab);return;}
   const si=e.target.closest('.scan-item[data-ip]');if(si){connectTo(si.dataset.ip,si.dataset.port);return;}
   const db=e.target.closest('.deauth-btn[data-idx]');if(db){sendCmd('select '+db.dataset.idx);setTimeout(()=>sendCmd('deauth'),200);return;}
 });
@@ -716,8 +789,21 @@ document.getElementById('manualConnBtn').addEventListener('click',()=>{const ip=
 document.getElementById('manualIP').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('manualConnBtn').click();});
 document.getElementById('demoBtn').addEventListener('click',startDemo);
 document.getElementById('logClear').addEventListener('click',()=>{document.getElementById('logBody').innerHTML='';});
-document.getElementById('cliSend').addEventListener('click',()=>{const inp=document.getElementById('cliInput');if(inp.value.trim()){sendCmd(inp.value.trim());inp.value='';}});
-document.getElementById('cliInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.value.trim()){sendCmd(e.target.value.trim());e.target.value='';}});
+document.getElementById('logCollapse').addEventListener('click',e=>{
+  const p=document.getElementById('logPanel');p.classList.toggle('collapsed');
+  e.target.textContent=p.classList.contains('collapsed')?'EXPAND':'COLLAPSE';
+});
+document.getElementById('cliSend').addEventListener('click',()=>{const inp=document.getElementById('cliInput');if(inp.value.trim()){sendCmd(inp.value);inp.value='';}});
+document.getElementById('cliInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.target.value.trim()){sendCmd(e.target.value);e.target.value='';histIdx=cmdHistory.length;}
+  else if(e.key==='ArrowUp'&&cmdHistory.length){e.preventDefault();histIdx=Math.max(0,histIdx-1);e.target.value=cmdHistory[histIdx]||'';}
+  else if(e.key==='ArrowDown'&&cmdHistory.length){e.preventDefault();histIdx=Math.min(cmdHistory.length,histIdx+1);e.target.value=histIdx>=cmdHistory.length?'':cmdHistory[histIdx];}
+});
+
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey&&e.key==='l'){e.preventDefault();document.getElementById('logBody').innerHTML='';}
+  if(e.ctrlKey&&e.key==='k'){e.preventDefault();document.getElementById('cliInput').focus();}
+});
 
 renderKnown();
 </script>
