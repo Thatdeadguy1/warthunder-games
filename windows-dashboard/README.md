@@ -4,6 +4,8 @@ A native Windows dashboard written in PowerShell + WPF. You don't need to instal
 
 ## What it does
 
+- **Two themes**: **Dark** (terminal green/cyan) and **Birch** (warm off-white with bark-dark text and leaf-green accents). Switch with the button in the top-right. Your choice is saved to `%APPDATA%\CyberDeck\theme.txt`, and the default comes from `theme` in `config.json`. On Windows 10 20H1+ and Windows 11 the title bar follows the theme too.
+
 - **DEV TOOL START**: opens Opera, Windows Terminal, Docker Desktop and Wireshark in one click. If an ESP32 USB-serial device is plugged in, it also opens your Ghost ESP control panel.
 - **App tiles**: click to launch. A tile is greyed out ("not installed") when none of its paths exist. Clicking it logs every path it checked.
 - **Web tiles**: cyber training, tools, vuln intel and hardware docs. They open in Opera, or in your default browser if Opera isn't found.
@@ -36,6 +38,7 @@ Everything lives in `config.json`:
 | `sites[]` | `name`, `group`, `url`. Tiles are grouped by `group` |
 | `devStartApps` | app names that DEV TOOL START opens |
 | `ghostEspPanel` | path to your Ghost ESP HTML panel (default `%USERPROFILE%\Downloads\ghostesp_9.html`) |
+| `theme` | starting theme, `Dark` or `Birch` (used until you toggle once) |
 | `browser` | name of the app entry that opens links (falls back to the system default) |
 
 Want Termius or PuTTY? Add an entry to `apps` with its install path.

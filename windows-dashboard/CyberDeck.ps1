@@ -20,9 +20,9 @@ try {
 
 # USB vendor IDs of the serial chips found on ESP32 dev boards.
 $EspVendors = [ordered]@{
-    '303A' = 'Espressif native USB (ESP32-S3/C3/C6)'
+    '303A' = 'Espressif USB (S3/C3/C6)'
     '10C4' = 'Silicon Labs CP210x'
-    '1A86' = 'WCH CH340 / CH910x'
+    '1A86' = 'WCH CH340/CH910x'
 }
 
 # ---------------------------------------------------------------- helpers ---
@@ -128,26 +128,76 @@ function Format-Uptime([TimeSpan]$t) {
     '{0}d {1:00}h {2:00}m' -f $t.Days, $t.Hours, $t.Minutes
 }
 
+# ----------------------------------------------------------------- themes ---
+
+$Themes = [ordered]@{
+    Dark = @{
+        Bg = '#0B0F14'; Panel = '#111821'; TileBg = '#131C26'; TileHover = '#16232E'
+        Edge = '#1E2A36'; Text = '#C9D4E0'; Muted = '#6B7C8F'
+        Accent = '#39FF88'; Accent2 = '#00D1FF'; AccentBg = '#0F2A1C'
+        LogBg = '#070A0E'; LogText = '#8FA3B8'
+    }
+    # warm off-white like birch bark, with dark bark text and leaf-green accents
+    Birch = @{
+        Bg = '#F3EFE6'; Panel = '#FBF9F4'; TileBg = '#FFFEFB'; TileHover = '#F1ECE1'
+        Edge = '#DCD4C4'; Text = '#2A2622'; Muted = '#857C6E'
+        Accent = '#2E6B45'; Accent2 = '#1F6A80'; AccentBg = '#E1EEE3'
+        LogBg = '#EAE4D8'; LogText = '#4F483F'
+    }
+}
+$ThemeFile = Join-Path $env:APPDATA 'CyberDeck\theme.txt'
+
+# Colours the Windows title bar to match (Windows 10 20H1+ / 11; ignored elsewhere).
+Add-Type -Namespace CyberDeck -Name Dwm -MemberDefinition @'
+[DllImport("dwmapi.dll")]
+public static extern int DwmSetWindowAttribute(System.IntPtr hwnd, int attr, ref int value, int size);
+'@
+
+function Set-TitleBarDark([bool]$dark) {
+    $hwnd = (New-Object Windows.Interop.WindowInteropHelper $Window).Handle
+    if ($hwnd -eq [IntPtr]::Zero) { return }
+    $v = [int]$dark
+    [void][CyberDeck.Dwm]::DwmSetWindowAttribute($hwnd, 20, [ref]$v, 4)   # DWMWA_USE_IMMERSIVE_DARK_MODE
+}
+
+function Set-Theme([string]$name) {
+    if (-not $Themes.Contains($name)) { $name = 'Dark' }
+    foreach ($kv in $Themes[$name].GetEnumerator()) {
+        $brush = New-Object Windows.Media.SolidColorBrush ([Windows.Media.ColorConverter]::ConvertFromString($kv.Value))
+        $brush.Freeze()
+        $Window.Resources[$kv.Key] = $brush
+    }
+    $script:Theme = $name
+    $ui.ThemeBtn.Content = if ($name -eq 'Dark') { 'Birch mode' } else { 'Dark mode' }
+    Set-TitleBarDark ($name -eq 'Dark')
+    try {
+        [void](New-Item -ItemType Directory -Force -Path (Split-Path $ThemeFile))
+        Set-Content -Path $ThemeFile -Value $name
+    } catch { }
+}
+
+function Get-SavedTheme {
+    if (Test-Path -LiteralPath $ThemeFile) { return (Get-Content -LiteralPath $ThemeFile -TotalCount 1).Trim() }
+    if ($Config.PSObject.Properties['theme']) { return $Config.theme }
+    return 'Dark'
+}
+
 # --------------------------------------------------------------------- UI ---
 
 [xml]$xaml = @'
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="CyberDeck" Width="1180" Height="780" MinWidth="900" MinHeight="600"
-        WindowStartupLocation="CenterScreen" Background="#0B0F14"
-        FontFamily="Segoe UI" Foreground="#C9D4E0">
+        WindowStartupLocation="CenterScreen" Background="{DynamicResource Bg}"
+        FontFamily="Segoe UI" Foreground="{DynamicResource Text}">
   <Window.Resources>
-    <SolidColorBrush x:Key="Panel"  Color="#111821"/>
-    <SolidColorBrush x:Key="Edge"   Color="#1E2A36"/>
-    <SolidColorBrush x:Key="Accent" Color="#39FF88"/>
-    <SolidColorBrush x:Key="Cyan"   Color="#00D1FF"/>
-    <SolidColorBrush x:Key="Muted"  Color="#6B7C8F"/>
+    <!-- colour brushes are injected from $Themes by Set-Theme -->
 
     <Style x:Key="Tile" TargetType="Button">
-      <Setter Property="Foreground" Value="#C9D4E0"/>
-      <Setter Property="Background" Value="#131C26"/>
-      <Setter Property="BorderBrush" Value="#1E2A36"/>
-      <Setter Property="Width" Value="170"/>
+      <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+      <Setter Property="Background" Value="{DynamicResource TileBg}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource Edge}"/>
+      <Setter Property="Width" Value="190"/>
       <Setter Property="Height" Value="58"/>
       <Setter Property="Margin" Value="0,0,8,8"/>
       <Setter Property="Cursor" Value="Hand"/>
@@ -163,11 +213,11 @@ function Format-Uptime([TimeSpan]$t) {
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="b" Property="BorderBrush" Value="#39FF88"/>
-                <Setter TargetName="b" Property="Background" Value="#16232E"/>
+                <Setter TargetName="b" Property="BorderBrush" Value="{DynamicResource Accent}"/>
+                <Setter TargetName="b" Property="Background" Value="{DynamicResource TileHover}"/>
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter TargetName="b" Property="Background" Value="#0F2A1C"/>
+                <Setter TargetName="b" Property="Background" Value="{DynamicResource AccentBg}"/>
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -180,9 +230,9 @@ function Format-Uptime([TimeSpan]$t) {
       <Setter Property="Height" Value="46"/>
       <Setter Property="Margin" Value="0,0,0,8"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="Background" Value="#0F2A1C"/>
-      <Setter Property="BorderBrush" Value="#39FF88"/>
-      <Setter Property="Foreground" Value="#39FF88"/>
+      <Setter Property="Background" Value="{DynamicResource AccentBg}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
+      <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
       <Setter Property="FontFamily" Value="Consolas"/>
       <Setter Property="FontSize" Value="15"/>
       <Setter Property="FontWeight" Value="Bold"/>
@@ -199,11 +249,11 @@ function Format-Uptime([TimeSpan]$t) {
     <Style x:Key="H" TargetType="TextBlock">
       <Setter Property="FontFamily" Value="Consolas"/>
       <Setter Property="FontSize" Value="12"/>
-      <Setter Property="Foreground" Value="#00D1FF"/>
+      <Setter Property="Foreground" Value="{DynamicResource Accent2}"/>
       <Setter Property="Margin" Value="0,0,0,8"/>
     </Style>
     <Style x:Key="K" TargetType="TextBlock">
-      <Setter Property="Foreground" Value="#6B7C8F"/>
+      <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="Width" Value="70"/>
     </Style>
@@ -213,8 +263,8 @@ function Format-Uptime([TimeSpan]$t) {
       <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
     <Style x:Key="Card" TargetType="Border">
-      <Setter Property="Background" Value="#111821"/>
-      <Setter Property="BorderBrush" Value="#1E2A36"/>
+      <Setter Property="Background" Value="{DynamicResource Panel}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource Edge}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Padding" Value="14"/>
@@ -236,11 +286,14 @@ function Format-Uptime([TimeSpan]$t) {
 
     <!-- header -->
     <DockPanel Grid.Row="0" Grid.ColumnSpan="3" Margin="0,0,0,14">
-      <TextBlock x:Name="Clock" DockPanel.Dock="Right" FontFamily="Consolas" FontSize="22"
-                 Foreground="#39FF88" VerticalAlignment="Center"/>
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+        <Button x:Name="ThemeBtn" Style="{StaticResource Small}" Margin="0,0,14,0" MinWidth="90"/>
+        <TextBlock x:Name="Clock" FontFamily="Consolas" FontSize="22" VerticalAlignment="Center"
+                   Foreground="{DynamicResource Accent}"/>
+      </StackPanel>
       <StackPanel>
-        <TextBlock x:Name="TitleText" FontFamily="Consolas" FontSize="26" FontWeight="Bold" Foreground="#39FF88"/>
-        <TextBlock x:Name="Subtitle" FontFamily="Consolas" FontSize="12" Foreground="#6B7C8F"/>
+        <TextBlock x:Name="TitleText" FontFamily="Consolas" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource Accent}"/>
+        <TextBlock x:Name="Subtitle" FontFamily="Consolas" FontSize="12" Foreground="{DynamicResource Muted}"/>
       </StackPanel>
     </DockPanel>
 
@@ -253,9 +306,9 @@ function Format-Uptime([TimeSpan]$t) {
           <StackPanel>
             <TextBlock Style="{StaticResource H}" Text="// SYSTEM"/>
             <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource K}" Text="CPU"/><TextBlock x:Name="Cpu" Style="{StaticResource V}"/></StackPanel>
-            <ProgressBar x:Name="CpuBar" Height="4" Margin="0,4,0,8" Maximum="100" Foreground="#39FF88" Background="#1E2A36" BorderThickness="0"/>
+            <ProgressBar x:Name="CpuBar" Height="4" Margin="0,4,0,8" Maximum="100" Foreground="{DynamicResource Accent}" Background="{DynamicResource Edge}" BorderThickness="0"/>
             <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource K}" Text="RAM"/><TextBlock x:Name="Ram" Style="{StaticResource V}"/></StackPanel>
-            <ProgressBar x:Name="RamBar" Height="4" Margin="0,4,0,8" Maximum="100" Foreground="#00D1FF" Background="#1E2A36" BorderThickness="0"/>
+            <ProgressBar x:Name="RamBar" Height="4" Margin="0,4,0,8" Maximum="100" Foreground="{DynamicResource Accent2}" Background="{DynamicResource Edge}" BorderThickness="0"/>
             <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource K}" Text="Uptime"/><TextBlock x:Name="Uptime" Style="{StaticResource V}"/></StackPanel>
           </StackPanel>
         </Border>
@@ -270,8 +323,8 @@ function Format-Uptime([TimeSpan]$t) {
             </StackPanel>
             <DockPanel Margin="0,10,0,0">
               <Button x:Name="PingBtn" DockPanel.Dock="Right" Style="{StaticResource Small}" Content="Ping" Margin="6,0,0,0"/>
-              <TextBox x:Name="PingHost" Text="1.1.1.1" Height="32" Padding="6,6" Background="#0B0F14"
-                       Foreground="#C9D4E0" BorderBrush="#1E2A36" CaretBrush="#39FF88" FontFamily="Consolas"/>
+              <TextBox x:Name="PingHost" Text="1.1.1.1" Height="32" Padding="6,6" Background="{DynamicResource Bg}"
+                       Foreground="{DynamicResource Text}" BorderBrush="{DynamicResource Edge}" CaretBrush="{DynamicResource Accent}" FontFamily="Consolas"/>
             </DockPanel>
           </StackPanel>
         </Border>
@@ -279,7 +332,7 @@ function Format-Uptime([TimeSpan]$t) {
         <Border Style="{StaticResource Card}">
           <StackPanel>
             <DockPanel>
-              <Ellipse x:Name="EspDot" DockPanel.Dock="Right" Width="10" Height="10" Fill="#6B7C8F" VerticalAlignment="Top" Margin="0,2,0,0"/>
+              <Ellipse x:Name="EspDot" DockPanel.Dock="Right" Width="10" Height="10" Fill="{DynamicResource Muted}" VerticalAlignment="Top" Margin="0,2,0,0"/>
               <TextBlock Style="{StaticResource H}" Text="// ESP32 / USB SERIAL"/>
             </DockPanel>
             <TextBlock x:Name="Esp" Style="{StaticResource V}" Margin="0,0,0,10"/>
@@ -299,7 +352,7 @@ function Format-Uptime([TimeSpan]$t) {
 
     <!-- log -->
     <TextBox x:Name="Log" Grid.Row="2" Grid.ColumnSpan="3" Margin="0,12,0,0" IsReadOnly="True"
-             Background="#070A0E" Foreground="#8FA3B8" BorderBrush="#1E2A36" FontFamily="Consolas"
+             Background="{DynamicResource LogBg}" Foreground="{DynamicResource LogText}" BorderBrush="{DynamicResource Edge}" FontFamily="Consolas"
              FontSize="12" Padding="8" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap"/>
   </Grid>
 </Window>
@@ -312,6 +365,8 @@ $xaml.SelectNodes('//*[@*[local-name()="Name"]]') | ForEach-Object {
     $ui[$n.Value] = $Window.FindName($n.Value)
 }
 $LogBox = $ui.Log
+Set-Theme (Get-SavedTheme)
+$Window.Add_SourceInitialized({ Set-TitleBarDark ($script:Theme -eq 'Dark') })
 
 $ui.TitleText.Text    = $Config.title
 $ui.Subtitle.Text = "$env:USERNAME@$env:COMPUTERNAME  //  $((Get-CimInstance Win32_OperatingSystem).Caption)"
@@ -324,8 +379,9 @@ function New-Tile([string]$title, [string]$sub, $tag, [bool]$dim) {
     $stack = New-Object Windows.Controls.StackPanel
     $t1 = New-Object Windows.Controls.TextBlock
     $t1.Text = $title; $t1.FontWeight = [Windows.FontWeights]::SemiBold; $t1.FontSize = 13
+    $t1.TextTrimming = [Windows.TextTrimming]::CharacterEllipsis
     $t2 = New-Object Windows.Controls.TextBlock
-    $t2.Text = $sub; $t2.FontSize = 11; $t2.Foreground = $Window.FindResource('Muted')
+    $t2.Text = $sub; $t2.FontSize = 11; $t2.SetResourceReference([Windows.Controls.TextBlock]::ForegroundProperty, 'Muted')
     $t2.TextTrimming = [Windows.TextTrimming]::CharacterEllipsis
     [void]$stack.Children.Add($t1); [void]$stack.Children.Add($t2)
     $btn.Content = $stack
@@ -407,13 +463,13 @@ function Update-Esp([bool]$announce = $false) {
     $devs = @(Get-EspDevices | Where-Object { $_.Port } | Sort-Object Port -Unique)
     if ($devs.Count) {
         $ui.Esp.Text = ($devs | ForEach-Object { "$($_.Port)  $($_.Chip)" }) -join "`n"
-        $ui.EspDot.Fill = $Window.FindResource('Accent')
+        $ui.EspDot.SetResourceReference([Windows.Shapes.Shape]::FillProperty, 'Accent')
         if (-not $script:EspSeen -or $announce) {
             Write-Log "ESP32-style serial device on $(($devs.Port) -join ', ')" 'ok'
         }
     } else {
         $ui.Esp.Text = 'No ESP32 USB-serial device detected'
-        $ui.EspDot.Fill = $Window.FindResource('Muted')
+        $ui.EspDot.SetResourceReference([Windows.Shapes.Shape]::FillProperty, 'Muted')
         if ($script:EspSeen) { Write-Log 'ESP32 device disconnected' 'warn' }
     }
     $script:EspSeen = [bool]$devs.Count
@@ -460,6 +516,10 @@ $ui.PingBtn.Add_Click({
     } else {
         Write-Log "${target}: no reply" 'warn'
     }
+})
+$ui.ThemeBtn.Add_Click({
+    Set-Theme $(if ($script:Theme -eq 'Dark') { 'Birch' } else { 'Dark' })
+    Write-Log "Theme: $script:Theme"
 })
 $ui.EspScan.Add_Click({ [void](Update-Esp $true) })
 $ui.GhostEsp.Add_Click({ Open-GhostEsp })

@@ -1,5 +1,6 @@
 {
   "title": "CYBER DECK",
+  "theme": "Dark",
   "browser": "Opera",
   "ghostEspPanel": "%USERPROFILE%\\Downloads\\ghostesp_9.html",
   "autoOpenGhostEspOnDevStart": true,
