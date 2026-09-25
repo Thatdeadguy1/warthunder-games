@@ -3,18 +3,16 @@
   "port": 8765,
   "ghostEspPanel": "~/Downloads/ghostesp_9.html",
   "autoOpenGhostEspOnDevStart": true,
-  "devStartApps": ["Opera", "Terminal", "Docker", "Termius", "Wireshark"],
+  "devStartApps": ["Opera", "Terminal", "Termius", "Wireshark"],
 
   "apps": [
     { "name": "Opera",               "group": "Core",   "app": "Opera" },
     { "name": "Terminal",            "group": "Core",   "app": "Terminal" },
-    { "name": "Docker",              "group": "Core",   "app": "Docker" },
     { "name": "Termius",             "group": "Core",   "app": "Termius" },
     { "name": "Wireshark",           "group": "Core",   "app": "Wireshark" },
 
-    { "name": "VS Code",             "group": "Dev",    "app": "Visual Studio Code" },
-    { "name": "Arduino IDE",         "group": "Dev",    "app": "Arduino IDE" },
-    { "name": "Raspberry Pi Imager", "group": "Dev",    "app": "Raspberry Pi Imager" },
+    { "name": "Arduino IDE",         "group": "Hardware", "app": "Arduino IDE" },
+    { "name": "Raspberry Pi Imager", "group": "Hardware", "app": "Raspberry Pi Imager" },
 
     { "name": "Activity Monitor",    "group": "System", "app": "Activity Monitor" },
     { "name": "System Information",  "group": "System", "app": "System Information" },

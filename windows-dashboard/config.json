@@ -2,7 +2,7 @@
   "browser": "Opera",
   "ghostEspPanel": "%USERPROFILE%\\Downloads\\ghostesp_9.html",
   "autoOpenGhostEspOnDevStart": true,
-  "devStartApps": ["Opera", "Windows Terminal", "Docker Desktop", "Wireshark"],
+  "devStartApps": ["Opera", "Windows Terminal", "Wireshark"],
 
   "apps": [
     {
@@ -16,34 +16,19 @@
       "paths": ["wt.exe"]
     },
     {
-      "name": "Docker Desktop",
-      "group": "Core",
-      "paths": ["%ProgramFiles%\\Docker\\Docker\\Docker Desktop.exe"]
-    },
-    {
       "name": "Wireshark",
       "group": "Core",
       "paths": ["%ProgramFiles%\\Wireshark\\Wireshark.exe"]
     },
     {
-      "name": "VS Code",
-      "group": "Dev",
-      "paths": ["%LOCALAPPDATA%\\Programs\\Microsoft VS Code\\Code.exe", "%ProgramFiles%\\Microsoft VS Code\\Code.exe"]
-    },
-    {
       "name": "Arduino IDE",
-      "group": "Dev",
+      "group": "Hardware",
       "paths": ["%LOCALAPPDATA%\\Programs\\Arduino IDE\\Arduino IDE.exe", "%ProgramFiles%\\Arduino IDE\\Arduino IDE.exe"]
     },
     {
       "name": "Raspberry Pi Imager",
-      "group": "Dev",
+      "group": "Hardware",
       "paths": ["%ProgramFiles%\\Raspberry Pi Imager\\rpi-imager.exe", "%ProgramFiles(x86)%\\Raspberry Pi Imager\\rpi-imager.exe"]
-    },
-    {
-      "name": "Zenmap (Nmap)",
-      "group": "Dev",
-      "paths": ["%ProgramFiles(x86)%\\Nmap\\zenmap.exe", "%ProgramFiles%\\Nmap\\zenmap.exe"]
     },
     {
       "name": "PowerShell (Admin)",

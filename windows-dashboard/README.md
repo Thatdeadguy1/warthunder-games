@@ -6,7 +6,7 @@ A native Windows dashboard written in PowerShell + WPF. You don't need to instal
 
 ## What it does
 
-- **DEV TOOL START**: opens Opera, Windows Terminal, Docker Desktop and Wireshark in one click. If an ESP32 USB-serial device is plugged in, it also opens your Ghost ESP control panel.
+- **DEV TOOL START**: opens Opera, Windows Terminal and Wireshark in one click. If an ESP32 USB-serial device is plugged in, it also opens your Ghost ESP control panel.
 - **App tiles**: click to launch. A tile is greyed out ("not installed") when none of its paths exist. Clicking it logs every path it checked.
 - **Web tiles**: cyber training, tools, vuln intel and hardware docs. They open in Opera, or in your default browser if Opera isn't found.
 - **System panel**: CPU %, RAM, uptime. Refreshes every 3 s.

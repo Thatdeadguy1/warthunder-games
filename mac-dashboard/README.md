@@ -20,7 +20,7 @@ The first time you double-click the `.command` file, macOS may block it because 
 
 ## What it does
 
-- **DEV TOOL START**: opens Opera, Terminal, Docker, Termius and Wireshark. If an ESP32 is plugged in, it also opens your Ghost ESP panel (`~/Downloads/ghostesp_9.html`).
+- **DEV TOOL START**: opens Opera, Terminal, Termius and Wireshark. If an ESP32 is plugged in, it also opens your Ghost ESP panel (`~/Downloads/ghostesp_9.html`).
 - **App tiles**: looks for `<name>.app` in `/Applications`, `~/Applications`, `/System/Applications` and the Utilities folders. Tiles for apps it can't find are greyed out.
 - **Web tiles**: the same cyber, vuln-intel and hardware links as the Windows version.
 - **System panel**:
