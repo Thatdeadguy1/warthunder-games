@@ -162,9 +162,13 @@ function Set-DarkTitleBar {
 
 function Set-Theme {
     foreach ($kv in $Theme.GetEnumerator()) {
-        $brush = New-Object Windows.Media.SolidColorBrush ([Windows.Media.ColorConverter]::ConvertFromString($kv.Value))
+        $color = [Windows.Media.ColorConverter]::ConvertFromString($kv.Value)
+        $brush = [Windows.Media.SolidColorBrush]::new([Windows.Media.Color]$color)
         $brush.Freeze()
-        $Window.Resources[$kv.Key] = $brush
+        # Add() rather than the indexer: PowerShell passes a PSObject wrapper
+        # through IDictionary indexers, which WPF rejects as a brush.
+        [void]$Window.Resources.Remove($kv.Key)
+        $Window.Resources.Add($kv.Key, $brush.psobject.BaseObject)
     }
 }
 
