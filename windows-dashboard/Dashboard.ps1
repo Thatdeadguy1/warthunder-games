@@ -9,6 +9,15 @@
 
 Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase
 
+# Any startup error: show it in a message box and save it next to the script,
+# because the launcher hides the console window.
+trap {
+    $msg = "$($_.Exception.Message)`n`nLine $($_.InvocationInfo.ScriptLineNumber): $($_.InvocationInfo.Line.Trim())"
+    try { Set-Content -Path (Join-Path $PSScriptRoot 'dashboard-error.log') -Value $msg } catch { }
+    [void][Windows.MessageBox]::Show($msg, 'Dashboard error')
+    exit 1
+}
+
 $ScriptDir  = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ConfigPath = Join-Path $ScriptDir 'config.json'
 try {
@@ -340,6 +349,12 @@ $xaml.SelectNodes('//*[@*[local-name()="Name"]]') | ForEach-Object {
     $ui[$n.Value] = $Window.FindName($n.Value)
 }
 $LogBox = $ui.Log
+# Errors inside button handlers go to the log instead of closing the window.
+$Window.Dispatcher.Add_UnhandledException({
+    param($src, $e)
+    Write-Log "Error: $($e.Exception.Message)" 'err'
+    $e.Handled = $true
+})
 Set-Theme
 $Window.Add_SourceInitialized({ Set-DarkTitleBar })
 
