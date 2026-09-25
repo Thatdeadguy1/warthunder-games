@@ -1,0 +1,46 @@
+{
+  "browser": "Opera",
+  "port": 8765,
+  "ghostEspPanel": "~/Downloads/ghostesp_9.html",
+  "autoOpenGhostEspOnDevStart": true,
+  "devStartApps": ["Opera", "Terminal", "Termius", "Wireshark"],
+
+  "apps": [
+    { "name": "Opera",               "group": "Core",   "app": "Opera" },
+    { "name": "Terminal",            "group": "Core",   "app": "Terminal" },
+    { "name": "Termius",             "group": "Core",   "app": "Termius" },
+    { "name": "Wireshark",           "group": "Core",   "app": "Wireshark" },
+
+    { "name": "Arduino IDE",         "group": "Hardware", "app": "Arduino IDE" },
+    { "name": "Raspberry Pi Imager", "group": "Hardware", "app": "Raspberry Pi Imager" },
+
+    { "name": "Activity Monitor",    "group": "System", "app": "Activity Monitor" },
+    { "name": "System Information",  "group": "System", "app": "System Information" },
+    { "name": "Console",             "group": "System", "app": "Console" }
+  ],
+
+  "sites": [
+    { "name": "TryHackMe",             "group": "Train",    "url": "https://tryhackme.com" },
+    { "name": "Hack The Box",          "group": "Train",    "url": "https://www.hackthebox.com" },
+    { "name": "OverTheWire",           "group": "Train",    "url": "https://overthewire.org/wargames/" },
+    { "name": "PortSwigger Academy",   "group": "Train",    "url": "https://portswigger.net/web-security" },
+    { "name": "picoCTF",               "group": "Train",    "url": "https://picoctf.org" },
+
+    { "name": "CyberChef",             "group": "Tools",    "url": "https://gchq.github.io/CyberChef/" },
+    { "name": "GTFOBins",              "group": "Tools",    "url": "https://gtfobins.github.io/" },
+    { "name": "Shodan",                "group": "Tools",    "url": "https://www.shodan.io" },
+    { "name": "VirusTotal",            "group": "Tools",    "url": "https://www.virustotal.com" },
+    { "name": "crt.sh",                "group": "Tools",    "url": "https://crt.sh" },
+
+    { "name": "NVD",                   "group": "Intel",    "url": "https://nvd.nist.gov" },
+    { "name": "CVE.org",               "group": "Intel",    "url": "https://www.cve.org" },
+    { "name": "Exploit-DB",            "group": "Intel",    "url": "https://www.exploit-db.com" },
+    { "name": "CISA KEV",              "group": "Intel",    "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog" },
+
+    { "name": "ESP-IDF Docs (S3)",     "group": "Hardware", "url": "https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/" },
+    { "name": "esptool-js Flasher",    "group": "Hardware", "url": "https://espressif.github.io/esptool-js/" },
+    { "name": "Raspberry Pi Docs",     "group": "Hardware", "url": "https://www.raspberrypi.com/documentation/" },
+    { "name": "Wireshark Docs",        "group": "Hardware", "url": "https://www.wireshark.org/docs/" },
+    { "name": "Docker Hub",            "group": "Hardware", "url": "https://hub.docker.com" }
+  ]
+}
