@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard</title>
+<style>
+  /* Birch dark: bark-black background, birch-bark cream primary, red secondary */
+  :root {
+    --bg: #121110; --panel: #1A1816; --tile: #1F1C19; --tile-hover: #29251F;
+    --edge: #332D27; --text: #ECE6D8; --muted: #8E8578;
+    --accent: #EFE8D8; --accent2: #E5484D; --accent-bg: #2A1616;
+    --log-bg: #0C0B0A; --log-text: #A89F90;
+    --mono: "SF Mono", Menlo, Consolas, monospace;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    display: grid; grid-template-columns: 300px 1fr; grid-template-rows: auto 1fr 130px;
+    gap: 0 16px; padding: 16px;
+  }
+  body > * { min-height: 0; }
+  header { grid-column: 1 / 3; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  #host { font: 14px var(--mono); color: var(--muted); }
+  #clock { font: 22px var(--mono); color: var(--accent); }
+  aside, main { overflow-y: auto; }
+
+  button { font: inherit; color: var(--text); cursor: pointer; }
+  .btn { background: var(--tile); border: 1px solid var(--edge); border-radius: 6px; padding: 7px 12px; font-size: 12px; }
+  .btn:hover, .tile:hover { border-color: var(--accent2); background: var(--tile-hover); }
+  .btn:active, .tile:active { background: var(--accent-bg); }
+  #devstart {
+    width: 100%; height: 46px; margin-bottom: 8px; border-radius: 6px;
+    background: var(--accent-bg); border: 1px solid var(--accent2); color: var(--accent2);
+    font: bold 15px var(--mono);
+  }
+  #devstart:hover { background: #3A1B1B; }
+
+  .card { background: var(--panel); border: 1px solid var(--edge); border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+  .h { font: 12px var(--mono); color: var(--accent2); margin: 4px 0 8px; }
+  .kv { display: flex; } .kv i { font-style: normal; color: var(--muted); font-size: 12px; width: 70px; }
+  .v { font: 12.5px var(--mono); white-space: pre-wrap; }
+  .bar { height: 4px; background: var(--edge); margin: 4px 0 8px; }
+  .bar div { height: 4px; transition: width .4s; }
+  .row { display: flex; gap: 6px; margin-top: 10px; }
+  input {
+    flex: 1; min-width: 0; height: 32px; padding: 6px; background: var(--bg); color: var(--text);
+    border: 1px solid var(--edge); font-family: var(--mono); caret-color: var(--accent2);
+  }
+  input:focus { outline: none; border-color: var(--accent2); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); margin-top: 2px; }
+  .dot.on { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+
+  .wrap { display: flex; flex-wrap: wrap; margin-bottom: 10px; }
+  .tile {
+    width: 190px; height: 58px; margin: 0 8px 8px 0; padding: 8px 12px; text-align: left;
+    background: var(--tile); border: 1px solid var(--edge); border-radius: 6px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .tile b, .tile span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .tile b { font-weight: 600; } .tile span { font-size: 11px; color: var(--muted); }
+  .tile.dim { opacity: .45; }
+
+  #log {
+    grid-column: 1 / 3; margin-top: 12px; padding: 8px; overflow-y: auto;
+    background: var(--log-bg); color: var(--log-text); border: 1px solid var(--edge);
+    font: 12px var(--mono); white-space: pre-wrap;
+  }
+  ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-thumb { background: var(--edge); border-radius: 4px; }
+
+  @media (max-width: 760px) {
+    body { grid-template-columns: 1fr; grid-template-rows: auto auto auto 130px; }
+    header, #log { grid-column: 1; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div id="host"></div>
+  <div id="clock"></div>
+</header>
+
+<aside>
+  <button id="devstart">&gt; DEV TOOL START</button>
+
+  <div class="card">
+    <div class="h">// SYSTEM</div>
+    <div class="kv"><i>CPU</i><span class="v" id="cpu">-</span></div>
+    <div class="bar"><div id="cpubar" style="background: var(--accent); width: 0"></div></div>
+    <div class="kv"><i>RAM</i><span class="v" id="ram">-</span></div>
+    <div class="bar"><div id="rambar" style="background: var(--accent2); width: 0"></div></div>
+    <div class="kv"><i>Uptime</i><span class="v" id="uptime">-</span></div>
+  </div>
+
+  <div class="card">
+    <div class="h">// NETWORK</div>
+    <div class="v" id="net" style="margin-bottom: 10px">-</div>
+    <button class="btn" id="netrefresh">Refresh</button>
+    <button class="btn" id="flushdns">Flush DNS</button>
+    <div class="row">
+      <input id="pinghost" value="1.1.1.1" spellcheck="false">
+      <button class="btn" id="ping">Ping</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display: flex; justify-content: space-between">
+      <div class="h">// ESP32 / USB SERIAL</div><div class="dot" id="espdot"></div>
+    </div>
+    <div class="v" id="esp" style="margin-bottom: 10px">-</div>
+    <button class="btn" id="espscan">Scan</button>
+    <button class="btn" id="ghost">Ghost ESP panel</button>
+  </div>
+</aside>
+
+<main id="tiles"></main>
+
+<div id="log"></div>
+
+<script>
+const TOKEN = "{{TOKEN}}";
+const $ = id => document.getElementById(id);
+
+async function api(path, body) {
+  const opts = { headers: { "X-Token": TOKEN } };
+  if (body !== undefined) {
+    opts.method = "POST";
+    opts.headers["Content-Type"] = "application/json";
+    opts.body = JSON.stringify(body);
+  }
+  const res = await fetch("/api/" + path, opts);
+  if (!res.ok) throw new Error(res.status + " " + res.statusText);
+  const data = await res.json();
+  (data.log || []).forEach(([lvl, msg]) => log(msg, lvl));
+  return data;
+}
+
+function log(msg, lvl = "info") {
+  const tag = { ok: "[+]", warn: "[!]", err: "[x]" }[lvl] || "[*]";
+  const el = $("log");
+  el.textContent += `${new Date().toLocaleTimeString([], { hour12: false })} ${tag} ${msg}\n`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function groupBy(items) {
+  const g = new Map();
+  items.forEach(i => (g.get(i.group) || g.set(i.group, []).get(i.group)).push(i));
+  return g;
+}
+
+function section(title, tiles) {
+  const h = document.createElement("div");
+  h.className = "h"; h.textContent = "// " + title;
+  const wrap = document.createElement("div");
+  wrap.className = "wrap"; tiles.forEach(t => wrap.append(t));
+  $("tiles").append(h, wrap);
+}
+
+function tile(name, sub, dim, onClick) {
+  const b = document.createElement("button");
+  b.className = "tile" + (dim ? " dim" : "");
+  b.title = sub;
+  const n = document.createElement("b"); n.textContent = name;
+  const s = document.createElement("span"); s.textContent = sub;
+  b.append(n, s);
+  b.onclick = onClick;
+  return b;
+}
+
+async function loadConfig() {
+  const cfg = await api("config");
+  $("host").textContent = cfg.host;
+  for (const [g, apps] of groupBy(cfg.apps))
+    section("APPS : " + g.toUpperCase(), apps.map(a =>
+      tile(a.name, a.sub, !a.installed, () => api("launch", { name: a.name }))));
+  for (const [g, sites] of groupBy(cfg.sites))
+    section("WEB : " + g.toUpperCase(), sites.map(s =>
+      tile(s.name, new URL(s.url).hostname, false, () => api("open", { url: s.url }))));
+  log(`Loaded ${cfg.apps.length} apps and ${cfg.sites.length} sites from config.json`);
+}
+
+async function updateStats() {
+  const s = await api("stats");
+  $("cpu").textContent = s.cpu + "%";
+  $("cpubar").style.width = s.cpu + "%";
+  $("ram").textContent = `${s.ramUsedGb} / ${s.ramTotalGb} GB`;
+  $("rambar").style.width = (s.ramTotalGb ? 100 * s.ramUsedGb / s.ramTotalGb : 0) + "%";
+  $("uptime").textContent = s.uptime;
+}
+
+async function updateNet() { $("net").textContent = await api("net"); }
+
+let espSeen = false;
+async function updateEsp(announce = false) {
+  const e = await api("esp");
+  const found = e.chips.length > 0;
+  $("esp").textContent = found
+    ? e.chips.join("\n") + (e.ports.length ? "\n" + e.ports.join("\n") : "")
+    : "No ESP32 USB-serial device detected";
+  $("espdot").classList.toggle("on", found);
+  if (found && (!espSeen || announce)) log("ESP32-style device: " + e.chips.join(", "), "ok");
+  if (!found && espSeen) log("ESP32 device disconnected", "warn");
+  espSeen = found;
+}
+
+const safe = fn => (...a) => fn(...a).catch(err => log(err.message, "err"));
+
+$("devstart").onclick = safe(() => api("devstart", {}).then(() => updateEsp()));
+$("netrefresh").onclick = safe(() => updateNet().then(() => log("Network info refreshed")));
+$("flushdns").onclick = safe(() => api("flushdns", {}));
+$("ping").onclick = safe(() => { log("Pinging " + $("pinghost").value + " ..."); return api("ping", { host: $("pinghost").value }); });
+$("pinghost").onkeydown = e => { if (e.key === "Enter") $("ping").click(); };
+$("espscan").onclick = safe(() => updateEsp(true));
+$("ghost").onclick = safe(() => api("ghost", {}));
+
+function tick() { $("clock").textContent = new Date().toLocaleTimeString([], { hour12: false }); }
+tick(); setInterval(tick, 1000);
+
+safe(async () => {
+  await loadConfig();
+  await Promise.all([updateStats(), updateNet(), updateEsp()]);
+  setInterval(safe(updateStats), 3000);
+  setInterval(safe(updateEsp), 5000);
+})();
+</script>
+</body>
+</html>

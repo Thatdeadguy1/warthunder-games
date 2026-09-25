@@ -1,71 +1,24 @@
 {
   "browser": "Opera",
-  "ghostEspPanel": "%USERPROFILE%\\Downloads\\ghostesp_9.html",
+  "port": 8765,
+  "ghostEspPanel": "~/Downloads/ghostesp_9.html",
   "autoOpenGhostEspOnDevStart": true,
-  "devStartApps": ["Opera", "Windows Terminal", "Docker Desktop", "Wireshark"],
+  "devStartApps": ["Opera", "Terminal", "Docker", "Termius", "Wireshark"],
 
   "apps": [
-    {
-      "name": "Opera",
-      "group": "Core",
-      "paths": ["%LOCALAPPDATA%\\Programs\\Opera\\opera.exe", "%ProgramFiles%\\Opera\\opera.exe", "opera.exe"]
-    },
-    {
-      "name": "Windows Terminal",
-      "group": "Core",
-      "paths": ["wt.exe"]
-    },
-    {
-      "name": "Docker Desktop",
-      "group": "Core",
-      "paths": ["%ProgramFiles%\\Docker\\Docker\\Docker Desktop.exe"]
-    },
-    {
-      "name": "Wireshark",
-      "group": "Core",
-      "paths": ["%ProgramFiles%\\Wireshark\\Wireshark.exe"]
-    },
-    {
-      "name": "VS Code",
-      "group": "Dev",
-      "paths": ["%LOCALAPPDATA%\\Programs\\Microsoft VS Code\\Code.exe", "%ProgramFiles%\\Microsoft VS Code\\Code.exe"]
-    },
-    {
-      "name": "Arduino IDE",
-      "group": "Dev",
-      "paths": ["%LOCALAPPDATA%\\Programs\\Arduino IDE\\Arduino IDE.exe", "%ProgramFiles%\\Arduino IDE\\Arduino IDE.exe"]
-    },
-    {
-      "name": "Raspberry Pi Imager",
-      "group": "Dev",
-      "paths": ["%ProgramFiles%\\Raspberry Pi Imager\\rpi-imager.exe", "%ProgramFiles(x86)%\\Raspberry Pi Imager\\rpi-imager.exe"]
-    },
-    {
-      "name": "Zenmap (Nmap)",
-      "group": "Dev",
-      "paths": ["%ProgramFiles(x86)%\\Nmap\\zenmap.exe", "%ProgramFiles%\\Nmap\\zenmap.exe"]
-    },
-    {
-      "name": "PowerShell (Admin)",
-      "group": "System",
-      "paths": ["powershell.exe"],
-      "admin": true
-    },
-    {
-      "name": "Device Manager",
-      "group": "System",
-      "paths": ["devmgmt.msc"]
-    },
-    {
-      "name": "Task Manager",
-      "group": "System",
-      "paths": ["taskmgr.exe"]
-    },
-    {
-      "name": "Network Connections",
-      "group": "System",
-      "paths": ["ncpa.cpl"]
-    }
+    { "name": "Opera",               "group": "Core",   "app": "Opera" },
+    { "name": "Terminal",            "group": "Core",   "app": "Terminal" },
+    { "name": "Docker",              "group": "Core",   "app": "Docker" },
+    { "name": "Termius",             "group": "Core",   "app": "Termius" },
+    { "name": "Wireshark",           "group": "Core",   "app": "Wireshark" },
+
+    { "name": "VS Code",             "group": "Dev",    "app": "Visual Studio Code" },
+    { "name": "Arduino IDE",         "group": "Dev",    "app": "Arduino IDE" },
+    { "name": "Raspberry Pi Imager", "group": "Dev",    "app": "Raspberry Pi Imager" },
+
+    { "name": "Activity Monitor",    "group": "System", "app": "Activity Monitor" },
+    { "name": "System Information",  "group": "System", "app": "System Information" },
+    { "name": "Console",             "group": "System", "app": "Console" }
   ],
 
   "sites": [

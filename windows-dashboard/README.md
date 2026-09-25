@@ -1,10 +1,10 @@
-# CyberDeck: Windows launcher dashboard
+# Dashboard for Windows
 
-A native Windows dashboard written in PowerShell + WPF. You don't need to install anything: it runs on the Windows PowerShell 5.1 that comes with Windows 10/11.
+A native Windows dashboard written in PowerShell + WPF. You don't need to install anything: it runs on the Windows PowerShell 5.1 that comes with Windows 10/11. There's also a [Mac version](../mac-dashboard).
+
+**Theme:** Birch Dark. The background is bark-black, the main colour is birch-bark cream and the second colour is red. The Windows title bar is set to dark to match (Windows 10 20H1+ and Windows 11).
 
 ## What it does
-
-- **Two themes**: **Dark** (terminal green/cyan) and **Birch** (warm off-white with bark-dark text and leaf-green accents). Switch with the button in the top-right. Your choice is saved to `%APPDATA%\CyberDeck\theme.txt`, and the default comes from `theme` in `config.json`. On Windows 10 20H1+ and Windows 11 the title bar follows the theme too.
 
 - **DEV TOOL START**: opens Opera, Windows Terminal, Docker Desktop and Wireshark in one click. If an ESP32 USB-serial device is plugged in, it also opens your Ghost ESP control panel.
 - **App tiles**: click to launch. A tile is greyed out ("not installed") when none of its paths exist. Clicking it logs every path it checked.
@@ -20,10 +20,10 @@ A native Windows dashboard written in PowerShell + WPF. You don't need to instal
 
 ## Run it
 
-Double-click `Launch-CyberDeck.bat`, or run:
+Double-click `Launch-Dashboard.bat`, or run:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -STA -File .\CyberDeck.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -STA -File .\Dashboard.ps1
 ```
 
 ## Customise
@@ -38,7 +38,6 @@ Everything lives in `config.json`:
 | `sites[]` | `name`, `group`, `url`. Tiles are grouped by `group` |
 | `devStartApps` | app names that DEV TOOL START opens |
 | `ghostEspPanel` | path to your Ghost ESP HTML panel (default `%USERPROFILE%\Downloads\ghostesp_9.html`) |
-| `theme` | starting theme, `Dark` or `Birch` (used until you toggle once) |
 | `browser` | name of the app entry that opens links (falls back to the system default) |
 
-Want Termius or PuTTY? Add an entry to `apps` with its install path.
+The colours are in the `$Theme` block near the top of `Dashboard.ps1`.

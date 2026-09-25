@@ -1,10 +1,10 @@
 <#
-    CyberDeck - Windows launcher dashboard
+    Dashboard - Windows launcher dashboard
     Opens apps and websites from config.json, shows live system/network stats,
     and watches for ESP32 USB-serial devices (opens the Ghost ESP panel).
 
-    Run with Launch-CyberDeck.bat, or:
-        powershell -NoProfile -ExecutionPolicy Bypass -STA -File .\CyberDeck.ps1
+    Run with Launch-Dashboard.bat, or:
+        powershell -NoProfile -ExecutionPolicy Bypass -STA -File .\Dashboard.ps1
 #>
 
 Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase
@@ -14,7 +14,7 @@ $ConfigPath = Join-Path $ScriptDir 'config.json'
 try {
     $Config = Get-Content -Raw -Path $ConfigPath -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
 } catch {
-    [void][Windows.MessageBox]::Show("Could not load config.json:`n$($_.Exception.Message)", 'CyberDeck')
+    [void][Windows.MessageBox]::Show("Could not load config.json:`n$($_.Exception.Message)", 'Dashboard')
     exit 1
 }
 
@@ -128,58 +128,35 @@ function Format-Uptime([TimeSpan]$t) {
     '{0}d {1:00}h {2:00}m' -f $t.Days, $t.Hours, $t.Minutes
 }
 
-# ----------------------------------------------------------------- themes ---
+# ------------------------------------------------------------------ theme ---
 
-$Themes = [ordered]@{
-    Dark = @{
-        Bg = '#0B0F14'; Panel = '#111821'; TileBg = '#131C26'; TileHover = '#16232E'
-        Edge = '#1E2A36'; Text = '#C9D4E0'; Muted = '#6B7C8F'
-        Accent = '#39FF88'; Accent2 = '#00D1FF'; AccentBg = '#0F2A1C'
-        LogBg = '#070A0E'; LogText = '#8FA3B8'
-    }
-    # warm off-white like birch bark, with dark bark text and leaf-green accents
-    Birch = @{
-        Bg = '#F3EFE6'; Panel = '#FBF9F4'; TileBg = '#FFFEFB'; TileHover = '#F1ECE1'
-        Edge = '#DCD4C4'; Text = '#2A2622'; Muted = '#857C6E'
-        Accent = '#2E6B45'; Accent2 = '#1F6A80'; AccentBg = '#E1EEE3'
-        LogBg = '#EAE4D8'; LogText = '#4F483F'
-    }
+# Birch dark: bark-black background, birch-bark cream primary, red secondary.
+$Theme = [ordered]@{
+    Bg = '#121110'; Panel = '#1A1816'; TileBg = '#1F1C19'; TileHover = '#29251F'
+    Edge = '#332D27'; Text = '#ECE6D8'; Muted = '#8E8578'
+    Accent = '#EFE8D8'; Accent2 = '#E5484D'; AccentBg = '#2A1616'
+    LogBg = '#0C0B0A'; LogText = '#A89F90'
 }
-$ThemeFile = Join-Path $env:APPDATA 'CyberDeck\theme.txt'
 
-# Colours the Windows title bar to match (Windows 10 20H1+ / 11; ignored elsewhere).
-Add-Type -Namespace CyberDeck -Name Dwm -MemberDefinition @'
+# Dark Windows title bar (Windows 10 20H1+ / 11; ignored elsewhere).
+Add-Type -Namespace WinDash -Name Dwm -MemberDefinition @'
 [DllImport("dwmapi.dll")]
 public static extern int DwmSetWindowAttribute(System.IntPtr hwnd, int attr, ref int value, int size);
 '@
 
-function Set-TitleBarDark([bool]$dark) {
+function Set-DarkTitleBar {
     $hwnd = (New-Object Windows.Interop.WindowInteropHelper $Window).Handle
     if ($hwnd -eq [IntPtr]::Zero) { return }
-    $v = [int]$dark
-    [void][CyberDeck.Dwm]::DwmSetWindowAttribute($hwnd, 20, [ref]$v, 4)   # DWMWA_USE_IMMERSIVE_DARK_MODE
+    $v = 1
+    [void][WinDash.Dwm]::DwmSetWindowAttribute($hwnd, 20, [ref]$v, 4)   # DWMWA_USE_IMMERSIVE_DARK_MODE
 }
 
-function Set-Theme([string]$name) {
-    if (-not $Themes.Contains($name)) { $name = 'Dark' }
-    foreach ($kv in $Themes[$name].GetEnumerator()) {
+function Set-Theme {
+    foreach ($kv in $Theme.GetEnumerator()) {
         $brush = New-Object Windows.Media.SolidColorBrush ([Windows.Media.ColorConverter]::ConvertFromString($kv.Value))
         $brush.Freeze()
         $Window.Resources[$kv.Key] = $brush
     }
-    $script:Theme = $name
-    $ui.ThemeBtn.Content = if ($name -eq 'Dark') { 'Birch mode' } else { 'Dark mode' }
-    Set-TitleBarDark ($name -eq 'Dark')
-    try {
-        [void](New-Item -ItemType Directory -Force -Path (Split-Path $ThemeFile))
-        Set-Content -Path $ThemeFile -Value $name
-    } catch { }
-}
-
-function Get-SavedTheme {
-    if (Test-Path -LiteralPath $ThemeFile) { return (Get-Content -LiteralPath $ThemeFile -TotalCount 1).Trim() }
-    if ($Config.PSObject.Properties['theme']) { return $Config.theme }
-    return 'Dark'
 }
 
 # --------------------------------------------------------------------- UI ---
@@ -187,11 +164,11 @@ function Get-SavedTheme {
 [xml]$xaml = @'
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="CyberDeck" Width="1180" Height="780" MinWidth="900" MinHeight="600"
+        Title="Dashboard" Width="1180" Height="780" MinWidth="900" MinHeight="600"
         WindowStartupLocation="CenterScreen" Background="{DynamicResource Bg}"
         FontFamily="Segoe UI" Foreground="{DynamicResource Text}">
   <Window.Resources>
-    <!-- colour brushes are injected from $Themes by Set-Theme -->
+    <!-- colour brushes are injected from $Theme by Set-Theme -->
 
     <Style x:Key="Tile" TargetType="Button">
       <Setter Property="Foreground" Value="{DynamicResource Text}"/>
@@ -213,7 +190,7 @@ function Get-SavedTheme {
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="b" Property="BorderBrush" Value="{DynamicResource Accent}"/>
+                <Setter TargetName="b" Property="BorderBrush" Value="{DynamicResource Accent2}"/>
                 <Setter TargetName="b" Property="Background" Value="{DynamicResource TileHover}"/>
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
@@ -231,8 +208,8 @@ function Get-SavedTheme {
       <Setter Property="Margin" Value="0,0,0,8"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="Background" Value="{DynamicResource AccentBg}"/>
-      <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
-      <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource Accent2}"/>
+      <Setter Property="Foreground" Value="{DynamicResource Accent2}"/>
       <Setter Property="FontFamily" Value="Consolas"/>
       <Setter Property="FontSize" Value="15"/>
       <Setter Property="FontWeight" Value="Bold"/>
@@ -287,13 +264,11 @@ function Get-SavedTheme {
     <!-- header -->
     <DockPanel Grid.Row="0" Grid.ColumnSpan="3" Margin="0,0,0,14">
       <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-        <Button x:Name="ThemeBtn" Style="{StaticResource Small}" Margin="0,0,14,0" MinWidth="90"/>
         <TextBlock x:Name="Clock" FontFamily="Consolas" FontSize="22" VerticalAlignment="Center"
                    Foreground="{DynamicResource Accent}"/>
       </StackPanel>
       <StackPanel>
-        <TextBlock x:Name="TitleText" FontFamily="Consolas" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource Accent}"/>
-        <TextBlock x:Name="Subtitle" FontFamily="Consolas" FontSize="12" Foreground="{DynamicResource Muted}"/>
+        <TextBlock x:Name="Subtitle" FontFamily="Consolas" FontSize="14" Foreground="{DynamicResource Muted}"/>
       </StackPanel>
     </DockPanel>
 
@@ -365,10 +340,9 @@ $xaml.SelectNodes('//*[@*[local-name()="Name"]]') | ForEach-Object {
     $ui[$n.Value] = $Window.FindName($n.Value)
 }
 $LogBox = $ui.Log
-Set-Theme (Get-SavedTheme)
-$Window.Add_SourceInitialized({ Set-TitleBarDark ($script:Theme -eq 'Dark') })
+Set-Theme
+$Window.Add_SourceInitialized({ Set-DarkTitleBar })
 
-$ui.TitleText.Text    = $Config.title
 $ui.Subtitle.Text = "$env:USERNAME@$env:COMPUTERNAME  //  $((Get-CimInstance Win32_OperatingSystem).Caption)"
 
 # ------------------------------------------------------------ build tiles ---
@@ -463,7 +437,7 @@ function Update-Esp([bool]$announce = $false) {
     $devs = @(Get-EspDevices | Where-Object { $_.Port } | Sort-Object Port -Unique)
     if ($devs.Count) {
         $ui.Esp.Text = ($devs | ForEach-Object { "$($_.Port)  $($_.Chip)" }) -join "`n"
-        $ui.EspDot.SetResourceReference([Windows.Shapes.Shape]::FillProperty, 'Accent')
+        $ui.EspDot.SetResourceReference([Windows.Shapes.Shape]::FillProperty, 'Accent2')
         if (-not $script:EspSeen -or $announce) {
             Write-Log "ESP32-style serial device on $(($devs.Port) -join ', ')" 'ok'
         }
@@ -516,10 +490,6 @@ $ui.PingBtn.Add_Click({
     } else {
         Write-Log "${target}: no reply" 'warn'
     }
-})
-$ui.ThemeBtn.Add_Click({
-    Set-Theme $(if ($script:Theme -eq 'Dark') { 'Birch' } else { 'Dark' })
-    Write-Log "Theme: $script:Theme"
 })
 $ui.EspScan.Add_Click({ [void](Update-Esp $true) })
 $ui.GhostEsp.Add_Click({ Open-GhostEsp })
