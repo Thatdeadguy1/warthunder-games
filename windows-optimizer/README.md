@@ -81,9 +81,13 @@ Clearing junk frees disk space; it rarely changes FPS.
 
 ## Notes
 
-- Works with the built-in Windows PowerShell 5.1. If launched from
-  PowerShell 7 it relaunches itself in 5.1, because `Checkpoint-Computer`
-  only exists there.
+- Works in the built-in Windows PowerShell 5.1 and in PowerShell 7. It
+  relaunches with whichever one you started it from. Creating restore
+  points only works in 5.1, because `Checkpoint-Computer` only exists there.
+- If you see *"Program 'powershell.exe' failed to run: Access is denied"*,
+  something on the PC (security software or a school/work policy) is
+  blocking new PowerShell windows. Open **Terminal (Admin)** from the
+  Win + X menu and run the script from there.
 - Per-user tweaks (Game Mode, GPU preference, transparency) apply to the
   account that approved the UAC prompt. On a normal personal laptop that's
   you; if you elevate with a *different* admin account, they apply to that

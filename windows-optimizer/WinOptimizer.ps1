@@ -35,15 +35,18 @@ function Test-IsAdmin {
     return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
-# Relaunch elevated, and always in Windows PowerShell 5.1 (Checkpoint-Computer
-# and a few other cmdlets used here do not exist in PowerShell 7).
-if (-not (Test-IsAdmin) -or $PSVersionTable.PSEdition -eq 'Core') {
+# Relaunch elevated with the same PowerShell that is running now, so a PC that
+# blocks powershell.exe but allows pwsh.exe (or the reverse) still works.
+if (-not (Test-IsAdmin)) {
     Write-Host 'Requesting administrator rights...' -ForegroundColor Yellow
     try {
+        $engine = (Get-Process -Id $PID).Path
         $arguments = '-NoProfile -ExecutionPolicy Bypass -File "{0}"' -f $PSCommandPath
-        Start-Process -FilePath 'powershell.exe' -Verb RunAs -ArgumentList $arguments -ErrorAction Stop
+        Start-Process -FilePath $engine -Verb RunAs -ArgumentList $arguments -ErrorAction Stop
     } catch {
-        Write-Host 'Administrator rights are required. Exiting.' -ForegroundColor Red
+        Write-Host ('Could not open an administrator window: {0}' -f $_.Exception.Message) -ForegroundColor Red
+        Write-Host 'Instead: press Win + X, choose "Terminal (Admin)" or "Windows PowerShell (Admin)",' -ForegroundColor Yellow
+        Write-Host 'then run this script again from that window.' -ForegroundColor Yellow
         Read-Host 'Press Enter to close' | Out-Null
     }
     exit
@@ -387,7 +390,7 @@ function Invoke-JunkCleanup([switch]$NoPrompt) {
         }
     }
 
-    if (-not $NoPrompt) {
+    if (-not $NoPrompt -and (Get-Command -Name Clear-RecycleBin -ErrorAction SilentlyContinue)) {
         if (Confirm-Choice 'Also empty the Recycle Bin? (deleted files there will be gone for good)') {
             Clear-RecycleBin -Force -ErrorAction SilentlyContinue
             Write-Ok 'Recycle Bin emptied'
@@ -665,6 +668,11 @@ function Invoke-MaintenanceMenu {
 
 function New-RestorePoint {
     Write-Info 'Creating a System Restore point...'
+    if (-not (Get-Command -Name Checkpoint-Computer -ErrorAction SilentlyContinue)) {
+        # Only Windows PowerShell 5.1 has this cmdlet; PowerShell 7 does not.
+        Write-Warn 'Restore points need Windows PowerShell 5.1. Make one via Start > "Create a restore point".'
+        return $false
+    }
     try {
         $warnings = $null
         Checkpoint-Computer -Description 'WinOptimizer' -RestorePointType 'MODIFY_SETTINGS' `
